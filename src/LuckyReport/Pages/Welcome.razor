@@ -1,0 +1,24 @@
+﻿@page "/"
+
+@inject IJSRuntime jsr
+@code{
+    public void Todo()
+    {
+        jsr.InvokeVoidAsync("luckyLoad.runJs");
+    }
+}
+<PageContainer Title="Welcome">
+    <Card>
+        <Button Type="@ButtonType.Primary" OnClick="Todo">Try</Button>
+        </Card>
+       <Card >
+             <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
+       </Card>
+    <p style="text-align: center; margin-top: 24px;">
+        Want to add more pages? Please refer to
+        <a href="https://github.com/ant-design-blazor/ant-design-pro-blazor" target="_blank" rel="noopener noreferrer">
+            ant-design-pro-blazor project
+        </a>
+        .
+    </p>
+</PageContainer>
