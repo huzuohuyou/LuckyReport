@@ -45,10 +45,10 @@
     </script>
     <script>
         $(function () {
-            var name = "";
-            while (name.length == 0) {
-                name = prompt("请输入昵称")
-            }
+            var name = "1";
+            //while (name.length == 0) {
+            //    name = prompt("请输入昵称")
+            //}
 
             var autoSave;
             //配置项
@@ -83,7 +83,6 @@
             luckysheet.create(options)
         })
         function save() {
-            alert('haha')
             var excel = luckysheet.getAllSheets();
             $.post(
                 "https://localhost:7103/set",
