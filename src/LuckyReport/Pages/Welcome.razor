@@ -6,10 +6,16 @@
     {
         jsr.InvokeVoidAsync("luckyLoad.runJs");
     }
+
+    public void Save()
+    {
+        jsr.InvokeVoidAsync("luckyLoad.save");
+    }
 }
 <PageContainer Title="Welcome">
     <Card>
         <Button Type="@ButtonType.Primary" OnClick="Todo">Try</Button>
+        <Button Type="@ButtonType.Primary" OnClick="Save">Save</Button>
         </Card>
        <Card Style="height: 1000px">
              <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>

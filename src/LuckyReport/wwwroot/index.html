@@ -28,10 +28,71 @@
                     container: 'luckysheet' //luckysheet为容器id
                 }
                 luckysheet.create(options)
+            },
+            save: function(){
+                var excel = luckysheet.getAllSheets();
+                $.post(
+                    "https://localhost:7103/set",
+                    { jsonExcel: JSON.stringify(excel) },
+                    function () {
+                        $(luckysheet_info_detail_save).text("已保存")
+                    })
+
             }
-            
+
         }
-        
+
+    </script>
+    <script>
+        $(function () {
+            var name = "";
+            while (name.length == 0) {
+                name = prompt("请输入昵称")
+            }
+
+            var autoSave;
+            //配置项
+            var options = {
+                lang: 'zh',
+                container: 'luckysheet',
+                allowUpdate: true,
+                loadUrl: "https://localhost:7103/get",
+                hook: {
+                    updated: function (e) {
+                        //监听更新,并在3s后自动保存
+                        if (autoSave) clearTimeout(autoSave)
+                        $(luckysheet_info_detail_save).text("已修改")
+                        autoSave = setTimeout(function () {
+                            var excel = luckysheet.getAllSheets();
+                            //去除临时数据,减小体积
+                            for (var i in excel) excel[i].data = undefined
+                            $.post(
+                                "https://localhost:7103/set",
+                                { jsonExcel: JSON.stringify(excel) },
+                                function () {
+                                    $(luckysheet_info_detail_save).text("已保存")
+                                })
+                        }, 3 * 1000)
+                        return true;
+                    }
+                },
+                updateUrl: "wss://localhost:7103/" + name
+            }
+
+            console.log(JSON.stringify(options))
+            luckysheet.create(options)
+        })
+        function save() {
+            alert('haha')
+            var excel = luckysheet.getAllSheets();
+            $.post(
+                "https://localhost:7103/set",
+                { jsonExcel: JSON.stringify(excel) },
+                function () {
+                    $(luckysheet_info_detail_save).text("已保存")
+                })
+
+        }
     </script>
 </head>
 
