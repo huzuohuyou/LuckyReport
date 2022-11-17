@@ -1,6 +1,6 @@
+using LuckyReport.Server.Models;
 using LuckyReport.Server.Services;
 using WebSocketSharp.Server;
-using WebSocketsSample.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +41,8 @@ var webSocketOptions = new WebSocketOptions
 
 app.UseWebSockets(webSocketOptions);
 app.UseCors(MyAllowSpecificOrigins);
-app.UseWebSockets(webSocketOptions);
 
+//using var db = new LuckyReportContext();
 app.Run();
+
+

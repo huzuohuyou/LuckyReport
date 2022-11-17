@@ -1,0 +1,57 @@
+﻿@page "/reports"
+@inject NavigationManager Navigation
+<Table @ref="table"
+       TItem="Report"
+       DataSource="@reports"
+       Total="_total"
+       @bind-PageIndex="_pageIndex"
+       @bind-PageSize="_pageSize"
+       @bind-SelectedRows="selectedRows"
+      >
+    <PropertyColumn Property="c=>c.Id" Sortable />
+    <PropertyColumn Property="c=>c.Title" Sortable />
+    <ActionColumn>
+        <Space>
+            <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">Edit</Button></SpaceItem>
+            <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
+        </Space>
+    </ActionColumn>
+</Table>
+
+<br />
+<p>PageIndex: @_pageIndex | PageSize: @_pageSize | Total: @_total</p>
+
+<br />
+<h5>selections:</h5>
+<Button OnClick="()=> { _pageIndex--; }">Previous page</Button>
+<Button OnClick="()=> { _pageIndex++; }">Next Page</Button>
+
+@code {
+
+    Report[] reports;
+
+    IEnumerable<Report> selectedRows;
+    ITable table;
+
+    int _pageIndex = 1;
+    int _pageSize = 10;
+    int _total = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        reports = (await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAllAsync()).ToArray();
+        _total = reports.Length;
+    }
+    
+    private void Edit(int id)
+    {
+        Navigation.NavigateTo($@"reports/{id}");
+    }
+
+    private void Delete(int id)
+    {
+        reports = reports.Where(x => x.Id != id).ToArray();
+        _total = reports.Length;
+    }
+
+}

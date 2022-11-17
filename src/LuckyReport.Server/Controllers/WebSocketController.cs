@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net.WebSockets;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
-namespace WebSocketsSample.Controllers;
+namespace LuckyReport.Server.Controllers;
 
 // <snippet>
 public class WebSocketController : ControllerBase

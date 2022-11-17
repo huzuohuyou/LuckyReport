@@ -1,0 +1,46 @@
+﻿@page "/reports/{id:int}"
+@inject IJSRuntime JS
+
+<Card>
+    <h1>Blazor is @id</h1>
+    <Button Type="@ButtonType.Primary" OnClick="Todo">Load</Button>
+    <Button Type="@ButtonType.Primary" OnClick="Save">Save</Button>
+    <button @onclick="SetStock">Set Stock</button>
+</Card>
+<Card Style="height: 700px">
+    <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
+</Card>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        //jsr.InvokeVoidAsync("luckyLoad.runJs");
+        //var report = (await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAsync(id));
+    }
+
+    public void Todo()
+    {
+        JS.InvokeVoidAsync("luckyLoad.runJs");
+    }
+    private Random r = new Random();
+    private string stockSymbol;
+    private decimal price;
+    private string result;
+    private async Task SetStock()
+    {
+        stockSymbol = 
+            $"{(char)('A' + r.Next(0, 26))}{(char)('A' + r.Next(0, 26))}";
+        price = r.Next(1, 101);
+            await JS.InvokeVoidAsync("displayTickerAlert2", stockSymbol, price);
+        result = $"Result of TickerChanged call for {stockSymbol} at " +
+                 $"{price.ToString("c")}: ";
+    }
+
+    public async Task Save()
+    {
+
+        await JS.InvokeVoidAsync("luckyLoad.runJs");
+    }
+}
