@@ -38,7 +38,6 @@
                     container: 'luckysheet' //luckysheet为容器id
                 }
                 luckysheet.create(options);
-                return "haha";
             },
             save: function () {
                 var excel = luckysheet.getAllSheets();
@@ -52,7 +51,7 @@
             getDoc: function () {
                 console.warn("get_doc is executing");
                 var excel = luckysheet.getAllSheets();
-                return excel;
+                return JSON.stringify(excel);
             }
         }
 
