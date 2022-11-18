@@ -1,7 +1,9 @@
+using LuckSheet_.NetCore.Helper;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net.WebSockets;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
+using System.Web;
 
 namespace LuckyReport.Server.Controllers;
 
@@ -52,7 +54,8 @@ public class WebSocketController : ControllerBase
 
             receiveResult = await webSocket.ReceiveAsync(
                 GetBuffer(buffer), CancellationToken.None);
-            m_result += Encoding.UTF8.GetString(buffer, 0, receiveResult.Count);
+            //m_result += Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+            //string strData = HttpUtility.UrlDecode(GZIPHelper.GZipDeCompress(m_result));
         }
 
         await webSocket.CloseAsync(

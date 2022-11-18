@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Nodes;
 using LuckyReport.Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace LuckyReport.Server.Controllers
 {
@@ -61,8 +64,60 @@ namespace LuckyReport.Server.Controllers
         public async Task<string> Get([FromRoute][Required] int id)
         {
             await using var db = new LuckyReportContext();
+            //数据源获取
             var r =await db.Reports.Where(r=>r.Id.Equals(id)).FirstOrDefaultAsync();
+            //var strDatasource =JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7103/",new HttpClient()).GetWeatherForecastAsync());
+            //var dataSource = JsonObject.Parse(strDatasource);
+
+            ////报表解析
+            //var jsonObject = JsonObject.Parse(r.Doc);
+
+            //InitData(jsonObject, dataSource);
             return r.Doc;
+        }
+
+        [HttpPost("/reports/{id}/view", Name = nameof(View))]
+        public async Task<string> View([FromRoute][Required] int id)
+        {
+            await using var db = new LuckyReportContext();
+            //数据源获取
+            var r = await db.Reports.Where(r => r.Id.Equals(id)).FirstOrDefaultAsync();
+            var strDatasource = JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7103/", new HttpClient()).GetWeatherForecastAsync());
+            var dataSource = JsonObject.Parse(strDatasource);
+
+            //报表解析
+            var jsonObject = JsonObject.Parse(r.Doc);
+
+            InitData(jsonObject, dataSource);
+            return jsonObject.ToString();
+        }
+
+        private void InitData(JsonNode doc, JsonNode dataSource)
+        {
+            doc.AsArray()[0]["data"].AsArray().ToList().ForEach(r =>
+            {
+                if (r.AsArray()!=null)
+                {
+                    r.AsArray().ToList().ForEach(m =>
+                    {
+                        if (m!=null && m is JsonObject)
+                        {
+                            if ((m as JsonObject)["m"]?.ToString()=="[date]")
+                            {
+                               // m["m"] = "2022";
+                                m["v"] = "2022";
+                            }
+                            
+                        }
+                    });
+                }
+
+                
+            });
+            //while (doc!=null)
+            //{
+            //    InitData(doc, dataSource);
+            //}
         }
     }
 }

@@ -1,0 +1,21 @@
+﻿@page "/reports/{id:int}/view"
+@inject IJSRuntime Js
+<Card>
+    <h1>Report Viewer @id</h1>
+</Card>
+<Card Style="height: 700px">
+    <div id="luckysheetviewer" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
+</Card>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+   
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //var report = await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAsync(id);
+        await Js.InvokeVoidAsync("luckyLoad.viewDoc",id);
+    }
+
+    
+}

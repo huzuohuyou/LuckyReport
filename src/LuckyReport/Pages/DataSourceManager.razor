@@ -1,4 +1,4 @@
-﻿@page "/reports"
+﻿@page "/datasourcs"
 @inject NavigationManager Navigation
 
 <Card>
@@ -17,8 +17,7 @@
         <PropertyColumn Property="c=>c.Title" Sortable />
         <ActionColumn Title="Action">
             <Space>
-                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">  Edit  </Button></SpaceItem>
-                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>View(context.Id)">  View  </Button></SpaceItem>
+                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">Edit</Button></SpaceItem>
                 <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
             </Space>
         </ActionColumn>
@@ -55,11 +54,6 @@
     private void Edit(int id)
     {
         Navigation.NavigateTo($@"reports/{id}");
-    }
-
-    private void View(int id)
-    {
-        Navigation.NavigateTo($@"reports/{id}/view");
     }
 
     private void Delete(int id)

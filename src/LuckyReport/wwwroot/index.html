@@ -39,8 +39,14 @@
                 var options = {
                     container: 'luckysheet' ,//luckysheet为容器id
                     loadUrl: "https://localhost:7103/reports/" + id,
+                    //updateUrl: "wss://localhost:7103/" + id,
                     lang: 'zh',
                     allowUpdate: true,
+                    showsheetbarConfig: 1,
+                    showinfobar: false,
+                    showsheetbar: false,
+                    column: 10,
+                    row:20,
                     hook: {
                         updated: function (e) {
                             //监听更新,并在3s后自动保存
@@ -67,6 +73,61 @@
                             return true;
                         }
                     },
+                }
+                console.log(JSON.stringify(options))
+                luckysheet.create(options);
+            },
+            viewDoc: function (id) {
+                var autoSave;
+                var options = {
+                    container: 'luckysheetviewer',//luckysheet为容器id
+                    loadUrl: "https://localhost:7103/reports/" + id+"/view",
+                    //updateUrl: "wss://localhost:7103/" + id,
+                    lang: 'zh',
+                    //allowUpdate: true,
+                    
+                    showtoolbar: false,
+                    showtoolbarConfig: false,
+
+                    showinfobar: false,
+
+                    showstatisticBar:false,
+                    showstatisticBarConfig: { count: false, view: false,zoom:true},
+
+                    showsheetbar: false,
+                    showsheetbarConfig: false,
+                    protection: true,
+                    sheetFormulaBar: false,
+                    enableAddRow: false,
+                    print: true,
+                    column: 10,
+                    row: 20,
+                    //hook: {
+                    //    updated: function (e) {
+                    //        //监听更新,并在3s后自动保存
+                    //        if (autoSave) clearTimeout(autoSave)
+                    //        $(luckysheet_info_detail_save).text("已修改")
+                    //        autoSave = setTimeout(function () {
+                    //            var excel = luckysheet.getAllSheets();
+                    //            //去除临时数据,减小体积
+                    //            //for (var i in excel) excel[i].data = undefined
+                    //            $.ajax({
+                    //                type: 'POST',
+                    //                url: "https://localhost:7103/reports",
+                    //                dataType: 'json',
+                    //                contentType: "application/json",
+                    //                data: JSON.stringify({ Id: id, Doc: JSON.stringify(excel) }),
+                    //                success: function (data) {
+                    //                    $(luckysheet_info_detail_save).text("已保存")
+                    //                },
+                    //                error: function (xhr, type) {
+                    //                    alert('数据加载失败');
+                    //                }
+                    //            });
+                    //        }, 3 * 1000)
+                    //        return true;
+                    //    }
+                    //},
                 }
                 console.log(JSON.stringify(options))
                 luckysheet.create(options);

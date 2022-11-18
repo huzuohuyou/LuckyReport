@@ -42,7 +42,6 @@ var webSocketOptions = new WebSocketOptions
 app.UseWebSockets(webSocketOptions);
 app.UseCors(MyAllowSpecificOrigins);
 
-//using var db = new LuckyReportContext();
 app.Run();
 
 
