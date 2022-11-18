@@ -1,22 +1,30 @@
 ﻿@page "/reports"
 @inject NavigationManager Navigation
-<Table @ref="table"
-       TItem="Report"
-       DataSource="@reports"
-       Total="_total"
-       @bind-PageIndex="_pageIndex"
-       @bind-PageSize="_pageSize"
-       @bind-SelectedRows="selectedRows"
-      >
-    <PropertyColumn Property="c=>c.Id" Sortable />
-    <PropertyColumn Property="c=>c.Title" Sortable />
-    <ActionColumn>
-        <Space>
-            <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">Edit</Button></SpaceItem>
-            <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
-        </Space>
-    </ActionColumn>
-</Table>
+
+<Card>
+    <Button Type="@ButtonType.Primary">新建</Button>
+</Card>
+<Card Style="height: 700px">
+    <Table @ref="table"
+           TItem="Report"
+           DataSource="@reports"
+           Total="_total"
+           @bind-PageIndex="_pageIndex"
+           @bind-PageSize="_pageSize"
+           @bind-SelectedRows="selectedRows"
+    >
+        <PropertyColumn Property="c=>c.Id" Sortable />
+        <PropertyColumn Property="c=>c.Title" Sortable />
+        <ActionColumn Title="Action">
+            <Space>
+                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">Edit</Button></SpaceItem>
+                <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
+            </Space>
+        </ActionColumn>
+    </Table>
+</Card>
+
+
 
 <br />
 <p>PageIndex: @_pageIndex | PageSize: @_pageSize | Total: @_total</p>
