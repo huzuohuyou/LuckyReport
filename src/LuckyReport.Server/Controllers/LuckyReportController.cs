@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using LuckyReport.Server.Helper;
 using LuckyReport.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NPOI.Util;
 
 namespace LuckyReport.Server.Controllers
 {
@@ -95,34 +97,87 @@ namespace LuckyReport.Server.Controllers
 
         private void InitData(JsonNode doc, string dataSource)
         {
-            doc.AsArray()[0]["data"].AsArray().ToList().ForEach(r =>
+            for (int j = 0; j < doc.AsArray()[0]["data"].AsArray().Count; j++)
             {
-                if (r.AsArray()!=null)
+                var row = doc.AsArray()[0]["data"].AsArray()[j];
+           
+                if (row.AsArray()!=null)
                 {
-                    r.AsArray().ToList().ForEach(m =>
+                    for (int i = 0; i < row.AsArray().ToList().Count; i++)
                     {
-                        if (m!=null && m is JsonObject)
+                        var cell=row.AsArray()[i];
+                        if (cell != null && cell is JsonObject)
                         {
-                            if (!string.IsNullOrWhiteSpace((m as JsonObject)["m"]?.ToString()))
-                            {
-                                try
-                                {
-                                    m["v"] = JsonHelper.GetValue((m as JsonObject)["m"]?.ToString(), dataSource);
-                                }
-                                catch (Exception e)
-                                {
-                                    Console.WriteLine(e);
-                                    //throw;
-                                }
-                               
-                            }
+                            //try
+                            //{
+
                             
+                            //}
+                            //catch (Exception e)
+                            //{
+                            //    Console.WriteLine(e);
+                            //}
+
+                            var path = (cell as JsonObject)["m"]?.ToString();
+                            if (!string.IsNullOrWhiteSpace(path) && path.Contains("#"))
+                            {
+                                var index = 0;
+                                var temp = path.Replace("#", $@"{index}");
+                                string value = JsonHelper.GetValue(temp, dataSource);
+                                while (!string.IsNullOrWhiteSpace(value))
+                                {
+                                    if (!string.IsNullOrWhiteSpace(cell.ToJsonString()))
+                                    {
+                                        var sampleJson = System.Text.Encoding.Default.GetBytes(cell.ToJsonString()).AsSpan();
+                                        var reader = new Utf8JsonReader(sampleJson);
+                                        var copyNode =  JsonObject.Create(JsonElement.ParseValue(ref reader));
+                                        copyNode["m"] = null;
+                                       
+                                        //cell["v"] = value;
+                                        temp = path.Replace("#", $@"{index}");
+                                        value = JsonHelper.GetValue(temp, dataSource);
+                                        if (string.IsNullOrWhiteSpace(value))
+                                            break;
+                                        try
+                                        {
+                                            copyNode["v"] = value;
+                                            //if (j + index< doc.AsArray()[0]["data"].AsArray().Count&& doc.AsArray()[0]["data"].AsArray()[j + index][i] == null)
+                                            //{
+                                                doc.AsArray()[0]["data"].AsArray()[j + index][i] = copyNode;
+                                            //}
+                                            index++;
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Console.WriteLine(e);
+                                        }
+
+                                    }
+
+
+                                }
+
+                                i = i + index;
+                            }
                         }
-                    });
+                                
+                        //if (m != null && m is JsonObject && !string.IsNullOrWhiteSpace(path))
+                        //{
+                        //    try
+                        //    {
+                        //        m["v"] = JsonHelper.GetValue(path, dataSource);
+                        //    }
+                        //    catch (Exception e)
+                        //    {
+                        //        Console.WriteLine(e);
+                        //        //throw;
+                        //    }
+                        //}
+                    }
                 }
 
                 
-            });
+            }
             //while (doc!=null)
             //{
             //    InitData(doc, dataSource);
