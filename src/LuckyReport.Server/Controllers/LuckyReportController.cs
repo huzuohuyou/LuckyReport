@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Nodes;
+using LuckyReport.Server.Helper;
 using LuckyReport.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -82,17 +83,17 @@ namespace LuckyReport.Server.Controllers
             await using var db = new LuckyReportContext();
             //数据源获取
             var r = await db.Reports.Where(r => r.Id.Equals(id)).FirstOrDefaultAsync();
-            var strDatasource = JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7103/", new HttpClient()).GetWeatherForecastAsync());
-            var dataSource = JsonObject.Parse(strDatasource);
+            var strDatasource = $@"{{""datasource"":{JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7103/", new HttpClient()).GetWeatherForecastAsync())}}}";
+            //var dataSource = JsonObject.Parse(strDatasource);
 
             //报表解析
             var jsonObject = JsonObject.Parse(r.Doc);
 
-            InitData(jsonObject, dataSource);
+            InitData(jsonObject, strDatasource);
             return jsonObject.ToString();
         }
 
-        private void InitData(JsonNode doc, JsonNode dataSource)
+        private void InitData(JsonNode doc, string dataSource)
         {
             doc.AsArray()[0]["data"].AsArray().ToList().ForEach(r =>
             {
@@ -102,10 +103,18 @@ namespace LuckyReport.Server.Controllers
                     {
                         if (m!=null && m is JsonObject)
                         {
-                            if ((m as JsonObject)["m"]?.ToString()=="[date]")
+                            if (!string.IsNullOrWhiteSpace((m as JsonObject)["m"]?.ToString()))
                             {
-                               // m["m"] = "2022";
-                                m["v"] = "2022";
+                                try
+                                {
+                                    m["v"] = JsonHelper.GetValue((m as JsonObject)["m"]?.ToString(), dataSource);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                    //throw;
+                                }
+                               
                             }
                             
                         }
