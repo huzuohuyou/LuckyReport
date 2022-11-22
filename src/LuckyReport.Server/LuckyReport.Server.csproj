@@ -11,8 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <OpenApiReference Include="..\..\..\..\Users\hailong.wu1\OneDrive\文档\swagger.json" CodeGenerator="NSwagCSharp" Link="OpenAPIs\swagger.json" />
+    <OpenApiReference Include="..\LuckyReport\swagger.json" CodeGenerator="NSwagCSharp" Link="OpenAPIs\swagger.json" />
   </ItemGroup>
+
+ 
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
@@ -33,6 +35,14 @@
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
+  </ItemGroup>
+
+ 
+
+  <ItemGroup>
+    <None Update="luckyreport.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
