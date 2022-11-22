@@ -97,13 +97,11 @@ namespace LuckyReport.Server.Controllers
         private void InitData(JsonNode doc, string dataSource)
         {
             var rows = doc.AsArray()[0]!["data"]!.AsArray();
-            for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+            for (int columnIndex = 0; columnIndex < rows[0]!.AsArray().Count; columnIndex++)
             {
-                var row = rows[rowIndex];
-                var cells = row!.AsArray();
-                for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
+                for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
                 {
-                    var cell = row[cellIndex];
+                    var cell = rows[rowIndex]![columnIndex];
                     if (cell is null)
                         continue;
                     var path = cell["m"]?.ToString();
@@ -124,7 +122,7 @@ namespace LuckyReport.Server.Controllers
                         try
                         {
                             copyNode["v"] = value;
-                            rows[rowIndex + index]![cellIndex] = copyNode;
+                            rows[rowIndex + index]![columnIndex] = copyNode;
                             index++;
                         }
                         catch (Exception e)
@@ -132,7 +130,7 @@ namespace LuckyReport.Server.Controllers
                             Console.WriteLine(e);
                         }
                     } while (!string.IsNullOrWhiteSpace(value));
-                    cellIndex += index;
+                    rowIndex += index;
                 }
             }
         }

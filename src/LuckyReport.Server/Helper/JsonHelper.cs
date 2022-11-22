@@ -15,7 +15,7 @@ namespace LuckyReport.Server.Helper
                 JObject obj = JObject.Parse(json.ToLower());
                 JToken age = obj.SelectToken(rkey);
                 if (age != null)
-                    return age.Value<string>();
+                    return age.Value<string>()!;
                 return string.Empty;
             }
             catch (Exception e)
