@@ -108,32 +108,55 @@ namespace LuckyReport.Server.Controllers
                     if (string.IsNullOrWhiteSpace(path))
                         continue;
                     var index = 0;
-                    var value = "";
-                    do
-                    {
-                        if (string.IsNullOrWhiteSpace(cell.ToJsonString()))
-                            continue;
-                        var copyNode = CopyNode(cell);
-                        copyNode["m"] = null;
-                        var temp = path.Replace("#", $@"{index}");
-                        value = JsonHelper.GetValue(temp, dataSource);
-                        if (string.IsNullOrWhiteSpace(value))
-                            break;
-                        try
-                        {
-                            copyNode["v"] = value;
-                            rows[rowIndex + index]![columnIndex] = copyNode;
-                            index++;
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                    } while (!string.IsNullOrWhiteSpace(value));
+                    if (path.Contains('#'))
+                        FillTable(ref rowIndex, ref index, columnIndex, path, dataSource, rows, cell);
+                    else
+                    {//单个值数据填充
+                        var value = JsonHelper.GetValue(path, dataSource);
+                        if (value.ok)
+                            rows[rowIndex + index]![columnIndex]!["v"] = value.value;
+                    }
                     rowIndex += index;
                 }
             }
         }
+        /// <summary>
+        /// 表格数据填充
+        /// </summary>
+        /// <param name="rowIndex"></param>
+        /// <param name="index"></param>
+        /// <param name="columnIndex"></param>
+        /// <param name="path"></param>
+        /// <param name="dataSource"></param>
+        /// <param name="rows"></param>
+        /// <param name="cell"></param>
+        private static void FillTable(ref int rowIndex,ref int index,int columnIndex,string path,string dataSource, JsonArray rows,JsonNode cell)
+        {
+            
+            var value = "";
+            do
+            {
+                if (string.IsNullOrWhiteSpace(cell.ToJsonString()))
+                    continue;
+                var copyNode = CopyNode(cell);
+                copyNode["m"] = null;
+                var temp = path.Replace("#", $@"{index}");
+                value = JsonHelper.GetValue(temp, dataSource).value;
+                if (string.IsNullOrWhiteSpace(value))
+                    break;
+                try
+                {
+                    copyNode["v"] = value;
+                    rows[rowIndex + index]![columnIndex] = copyNode;
+                    index++;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            } while (!string.IsNullOrWhiteSpace(value));
+        }
+
 
         private static JsonNode CopyNode(JsonNode node)
         {

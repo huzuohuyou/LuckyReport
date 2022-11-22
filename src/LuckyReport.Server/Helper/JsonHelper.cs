@@ -1,11 +1,10 @@
-﻿using System.Text.Json.Nodes;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace LuckyReport.Server.Helper
 {
     public static class JsonHelper
     {
-        public static string GetValue(string key, string json)
+        public static (bool ok,string value) GetValue(string key, string json)
         {
             try
             {
@@ -13,15 +12,15 @@ namespace LuckyReport.Server.Helper
                 if (key.StartsWith('['))//数组模型
                     rkey = $@"$.datasource{key.ToLower()}";
                 JObject obj = JObject.Parse(json.ToLower());
-                JToken age = obj.SelectToken(rkey);
-                if (age != null)
-                    return age.Value<string>()!;
-                return string.Empty;
+                JToken? token = obj.SelectToken(rkey);
+                if (token != null)
+                    return new (true,token.Value<string>()!);
+                return new (false,string.Empty);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return string.Empty;
+                return new(false, string.Empty);
             }
 
         }
