@@ -1,36 +1,35 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using LuckyReport.Server.Helper;
 using LuckyReport.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NPOI.Util;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace LuckyReport.Server.Controllers
 {
     public class LuckyReportController : ControllerBase
     {
-        
+
         private readonly Report _report;
         public LuckyReportController(Report report)
         {
-            _report=report;
+            _report = report;
         }
-        [HttpPost("/get",Name = nameof(GetDoc))]
-        public Task<string> GetDoc() {
+        [HttpPost("/get", Name = nameof(GetDoc))]
+        public Task<string> GetDoc()
+        {
             return Task.FromResult(_report.Doc);
         }
 
         [HttpPost("/set", Name = nameof(SetDoc))]
         public async Task<bool> SetDoc(string jsonExcel)
         {
-            _report.Doc=jsonExcel;
+            _report.Doc = jsonExcel;
             await using var db = new LuckyReportContext();
 
-            db.Add(new Report() { Title = "first",Doc = jsonExcel });
-            var c=await db.SaveChangesAsync();
+            db.Add(new Report() { Title = "first", Doc = jsonExcel });
+            var c = await db.SaveChangesAsync();
             return c == 1;
         }
 
@@ -42,9 +41,9 @@ namespace LuckyReport.Server.Controllers
                 report.Title = "new";
                 await using var db = new LuckyReportContext();
                 var r = await db.Reports.Where(r => r.Id.Equals(report.Id)).FirstOrDefaultAsync();
-                r.Doc = report.Doc;
+                r!.Doc = report.Doc;
                 var c = await db.SaveChangesAsync();
-                Console.WriteLine(c==1);
+                Console.WriteLine(c == 1);
                 return c == 1;
             }
             catch (Exception e)
@@ -52,7 +51,7 @@ namespace LuckyReport.Server.Controllers
                 Console.WriteLine(e);
                 throw;
             }
-           
+
         }
 
         [HttpGet("/reports", Name = nameof(GetAll))]
@@ -68,7 +67,7 @@ namespace LuckyReport.Server.Controllers
         {
             await using var db = new LuckyReportContext();
             //数据源获取
-            var r =await db.Reports.Where(r=>r.Id.Equals(id)).FirstOrDefaultAsync();
+            var r = await db.Reports.Where(r => r.Id.Equals(id)).FirstOrDefaultAsync();
             //var strDatasource =JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7103/",new HttpClient()).GetWeatherForecastAsync());
             //var dataSource = JsonObject.Parse(strDatasource);
 
@@ -76,7 +75,7 @@ namespace LuckyReport.Server.Controllers
             //var jsonObject = JsonObject.Parse(r.Doc);
 
             //InitData(jsonObject, dataSource);
-            return r.Doc;
+            return r!.Doc;
         }
 
         [HttpPost("/reports/{id}/view", Name = nameof(View))]
@@ -89,99 +88,55 @@ namespace LuckyReport.Server.Controllers
             //var dataSource = JsonObject.Parse(strDatasource);
 
             //报表解析
-            var jsonObject = JsonObject.Parse(r.Doc);
+            var jsonObject = JsonNode.Parse(r!.Doc);
 
-            InitData(jsonObject, strDatasource);
-            return jsonObject.ToString();
+            InitData(jsonObject!, strDatasource);
+            return jsonObject!.ToString();
         }
 
         private void InitData(JsonNode doc, string dataSource)
         {
-            for (int j = 0; j < doc.AsArray()[0]["data"].AsArray().Count; j++)
+            var rows = doc.AsArray()[0]!["data"]!.AsArray();
+            for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
             {
-                var row = doc.AsArray()[0]["data"].AsArray()[j];
-           
-                if (row.AsArray()!=null)
+                var row = rows[rowIndex];
+                var cells = row!.AsArray();
+                for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
                 {
-                    for (int i = 0; i < row.AsArray().ToList().Count; i++)
+                    var cell = row[cellIndex];
+                    if (cell is null)
+                        continue;
+                    var path = cell["m"]?.ToString();
+                    if (string.IsNullOrWhiteSpace(path))
+                        continue;
+                    var index = 0;
+                    var value = "";
+                    do
                     {
-                        var cell=row.AsArray()[i];
-                        if (cell != null && cell is JsonObject)
+                        if (string.IsNullOrWhiteSpace(cell.ToJsonString()))
+                            continue;
+                        var sampleJson = System.Text.Encoding.Default.GetBytes(cell.ToJsonString()).AsSpan();
+                        var reader = new Utf8JsonReader(sampleJson);
+                        var copyNode = JsonObject.Create(JsonElement.ParseValue(ref reader));
+                        copyNode!["m"] = null;
+                        var temp = path.Replace("#", $@"{index}");
+                        value = JsonHelper.GetValue(temp, dataSource);
+                        if (string.IsNullOrWhiteSpace(value))
+                            break;
+                        try
                         {
-                            //try
-                            //{
-
-                            
-                            //}
-                            //catch (Exception e)
-                            //{
-                            //    Console.WriteLine(e);
-                            //}
-
-                            var path = (cell as JsonObject)["m"]?.ToString();
-                            if (!string.IsNullOrWhiteSpace(path) && path.Contains("#"))
-                            {
-                                var index = 0;
-                                var temp = path.Replace("#", $@"{index}");
-                                string value = JsonHelper.GetValue(temp, dataSource);
-                                while (!string.IsNullOrWhiteSpace(value))
-                                {
-                                    if (!string.IsNullOrWhiteSpace(cell.ToJsonString()))
-                                    {
-                                        var sampleJson = System.Text.Encoding.Default.GetBytes(cell.ToJsonString()).AsSpan();
-                                        var reader = new Utf8JsonReader(sampleJson);
-                                        var copyNode =  JsonObject.Create(JsonElement.ParseValue(ref reader));
-                                        copyNode["m"] = null;
-                                       
-                                        //cell["v"] = value;
-                                        temp = path.Replace("#", $@"{index}");
-                                        value = JsonHelper.GetValue(temp, dataSource);
-                                        if (string.IsNullOrWhiteSpace(value))
-                                            break;
-                                        try
-                                        {
-                                            copyNode["v"] = value;
-                                            //if (j + index< doc.AsArray()[0]["data"].AsArray().Count&& doc.AsArray()[0]["data"].AsArray()[j + index][i] == null)
-                                            //{
-                                                doc.AsArray()[0]["data"].AsArray()[j + index][i] = copyNode;
-                                            //}
-                                            index++;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            Console.WriteLine(e);
-                                        }
-
-                                    }
-
-
-                                }
-
-                                i = i + index;
-                            }
+                            copyNode["v"] = value;
+                            rows[rowIndex + index]![cellIndex] = copyNode;
+                            index++;
                         }
-                                
-                        //if (m != null && m is JsonObject && !string.IsNullOrWhiteSpace(path))
-                        //{
-                        //    try
-                        //    {
-                        //        m["v"] = JsonHelper.GetValue(path, dataSource);
-                        //    }
-                        //    catch (Exception e)
-                        //    {
-                        //        Console.WriteLine(e);
-                        //        //throw;
-                        //    }
-                        //}
-                    }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                    } while (!string.IsNullOrWhiteSpace(value));
+                    cellIndex = cellIndex + index;
                 }
-
-                
             }
-            //while (doc!=null)
-            //{
-            //    InitData(doc, dataSource);
-            //}
         }
     }
 }
