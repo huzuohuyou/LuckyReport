@@ -115,10 +115,8 @@ namespace LuckyReport.Server.Controllers
                     {
                         if (string.IsNullOrWhiteSpace(cell.ToJsonString()))
                             continue;
-                        var sampleJson = System.Text.Encoding.Default.GetBytes(cell.ToJsonString()).AsSpan();
-                        var reader = new Utf8JsonReader(sampleJson);
-                        var copyNode = JsonObject.Create(JsonElement.ParseValue(ref reader));
-                        copyNode!["m"] = null;
+                        var copyNode = CopyNode(cell);
+                        copyNode["m"] = null;
                         var temp = path.Replace("#", $@"{index}");
                         value = JsonHelper.GetValue(temp, dataSource);
                         if (string.IsNullOrWhiteSpace(value))
@@ -134,9 +132,17 @@ namespace LuckyReport.Server.Controllers
                             Console.WriteLine(e);
                         }
                     } while (!string.IsNullOrWhiteSpace(value));
-                    cellIndex = cellIndex + index;
+                    cellIndex += index;
                 }
             }
+        }
+
+        private static JsonNode CopyNode(JsonNode node)
+        {
+            var sampleJson = System.Text.Encoding.Default.GetBytes(node.ToJsonString()).AsSpan();
+            var reader = new Utf8JsonReader(sampleJson);
+            var copyNode = JsonObject.Create(JsonElement.ParseValue(ref reader));
+            return copyNode!;
         }
     }
 }
