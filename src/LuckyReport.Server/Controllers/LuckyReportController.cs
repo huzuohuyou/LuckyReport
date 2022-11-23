@@ -184,11 +184,8 @@ namespace LuckyReport.Server.Controllers
                 try
                 {
                     copyNode["v"] = value;
-                    //copyNode["m"] = value;
-                    copyNode["ct"]["fa"] = "General";
-                    copyNode["ct"]["t"] = "n";
+                    copyNode["m"] = value;
                     rows[rowIndex + index]![columnIndex] = copyNode;
-                    rows[rowIndex + index]![columnIndex]["v"] = CopyNode(copyNode);
                     index++;
                 }
                 catch (Exception e)
