@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LuckSheet_.NetCore.Helper;
 
 namespace LuckyReport.Server.Controllers
 {
@@ -89,11 +90,14 @@ namespace LuckyReport.Server.Controllers
 
             //报表解析
             var jsonObject = JsonNode.Parse(r!.Doc);
-
+            
             InitData(jsonObject!, strDatasource);
+            //InitCellData(jsonObject!, strDatasource);
+            ExcelHepler.GenerateExcel(jsonObject!.ToString());
             return jsonObject!.ToString();
         }
 
+       
         private void InitData(JsonNode doc, string dataSource)
         {
             var rows = doc.AsArray()[0]!["data"]!.AsArray();
@@ -114,7 +118,40 @@ namespace LuckyReport.Server.Controllers
                     {//单个值数据填充
                         var value = JsonHelper.GetValue(path, dataSource);
                         if (value.ok)
+                        {
                             rows[rowIndex + index]![columnIndex]!["v"] = value.value;
+                            rows[rowIndex + index]![columnIndex]!["m"] = value.value;
+                        }
+                    }
+                    rowIndex += index;
+                }
+            }
+        }
+
+        private void InitCellData(JsonNode doc, string dataSource)
+        {
+            var rows = doc.AsArray()[0]!["celldata"]!.AsArray();
+            for (int columnIndex = 0; columnIndex < rows[0]!.AsArray().Count; columnIndex++)
+            {
+                for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+                {
+                    var cell = rows[rowIndex]![columnIndex];
+                    if (cell is null)
+                        continue;
+                    var path = cell["m"]?.ToString();
+                    if (string.IsNullOrWhiteSpace(path))
+                        continue;
+                    var index = 0;
+                    if (path.Contains('#'))
+                        FillTable(ref rowIndex, ref index, columnIndex, path, dataSource, rows, cell);
+                    else
+                    {//单个值数据填充
+                        var value = JsonHelper.GetValue(path, dataSource);
+                        if (value.ok)
+                        {
+                            rows[rowIndex + index]![columnIndex]!["v"] = value.value;
+                            rows[rowIndex + index]![columnIndex]!["m"] = value.value;
+                        }
                     }
                     rowIndex += index;
                 }
@@ -139,7 +176,7 @@ namespace LuckyReport.Server.Controllers
                 if (string.IsNullOrWhiteSpace(cell.ToJsonString()))
                     continue;
                 var copyNode = CopyNode(cell);
-                copyNode["m"] = null;
+                //copyNode["m"] = null;
                 var temp = path.Replace("#", $@"{index}");
                 value = JsonHelper.GetValue(temp, dataSource).value;
                 if (string.IsNullOrWhiteSpace(value))
@@ -147,7 +184,11 @@ namespace LuckyReport.Server.Controllers
                 try
                 {
                     copyNode["v"] = value;
+                    //copyNode["m"] = value;
+                    copyNode["ct"]["fa"] = "General";
+                    copyNode["ct"]["t"] = "n";
                     rows[rowIndex + index]![columnIndex] = copyNode;
+                    rows[rowIndex + index]![columnIndex]["v"] = CopyNode(copyNode);
                     index++;
                 }
                 catch (Exception e)

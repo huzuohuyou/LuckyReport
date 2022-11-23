@@ -330,3 +330,5 @@ ASALocalRun/
 .mfractor/
 *.db-shm
 *.db-wal
+src/LuckyReport.Server/wwwroot/UploadFiles/
+src/LuckyReport.Server/export.xls
