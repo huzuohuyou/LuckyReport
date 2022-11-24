@@ -18,11 +18,15 @@
         //var report = await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAsync(id);
         await Js.InvokeVoidAsync("luckyLoad.viewDoc",id);
     }
-    private async Task<bool> Print()
+    private  void Print()
     {
-        var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
-        var ok = await new swaggerClient("https://localhost:7103/", new HttpClient()).PostAsync(new Report() { Id = id, Doc = doc });
-        return ok;
+    //同上先打开excel进程并指定工作表
+        Microsoft.Office.Interop.Excel.Application excelapp = new Microsoft.Office.Interop.Excel.Application();
+        Microsoft.Office.Interop.Excel.Workbook wb = excelapp.Workbooks.Open(@"D:\Github\luckyReport\src\LuckyReport.Server\wwwroot\UploadFiles\2022-11-24\export_03_28_03.xls");
+        Microsoft.Office.Interop.Excel.Worksheet WS = (Microsoft.Office.Interop.Excel.Worksheet)wb.Worksheets[1];
+
+    //使用的是PrintOutEx函数来打印，
+        WS.PrintOutEx(1,1,1,false,"Microsoft XPS Document Writer", true, true, "C:/Users/Administrator/Desktop/1.xps");
     }
     private async Task<bool> Download()
     {

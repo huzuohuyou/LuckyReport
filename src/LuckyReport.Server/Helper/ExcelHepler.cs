@@ -8,6 +8,7 @@ using NPOI.SS.Formula.Eval;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 namespace LuckSheet_.NetCore.Helper
 {
@@ -463,9 +464,13 @@ namespace LuckSheet_.NetCore.Helper
                             ICell Cell = row.GetCell(columnIndex) ?? row.CreateCell(columnIndex);
                             try
                             {
-                                var v = Cjarray[i]?[columnIndex]?["m"]?.ToString();
-                                if (!string.IsNullOrWhiteSpace(v))
-                                    Cell.SetCellValue(v);
+                                if ((Cjarray[i]?[columnIndex] as JObject)!=null&&(Cjarray[i]?[columnIndex] as JObject).ContainsKey("m"))
+                                {
+                                    var v = Cjarray[i]?[columnIndex]?["m"]?.ToString();
+                                    if (!string.IsNullOrWhiteSpace(v))
+                                        Cell.SetCellValue(v);
+                                }
+                                
                             }
                             catch (Exception e)
                             {
