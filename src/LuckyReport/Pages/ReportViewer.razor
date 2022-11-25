@@ -12,11 +12,16 @@
 @code {
     [Parameter]
     public int id { get; set; }
-   
+
+    public bool loaded = false;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         //var report = await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAsync(id);
-        await Js.InvokeVoidAsync("luckyLoad.viewDoc",id);
+        if (firstRender)
+        {
+            await Js.InvokeVoidAsync("luckyLoad.viewDoc", id);
+        }
+        
     }
     private async Task<bool> Print()
     {

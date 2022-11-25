@@ -98,18 +98,19 @@
                 }
                 console.log(JSON.stringify(options))
                 luckysheet.create(options);
-                pic = luckysheet.getScreenshot("A1:J8");
+                //$('#luckysheet-left-top').click();
+                //pic = luckysheet.getScreenshot();
             },
             downloadDoc: function (id) {
                 var excel = luckysheet.getAllSheets()[0];
                 luckysheet.transToCellData(excel["data"]);
             },
             printDoc: function () {
-        // 1. 实现全选
-        $('#luckysheet-left-top').click();
-        // 2. 生成选区的截图
-        let src = luckysheet.getScreenshot();
-        let imgSrc = src;
+                // 1. 实现全选
+                $('#luckysheet-left-top').click();
+                // 2. 生成选区的截图
+                let src = luckysheet.getScreenshot();
+                let imgSrc = src;
                 let iframe = document.createElement('IFRAME')
                 let doc = null
                 iframe.setAttribute('class', 'print-iframe')
