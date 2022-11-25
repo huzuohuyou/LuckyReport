@@ -33,11 +33,11 @@
     </script>
     <script>
         window.luckyLoad = {
-            
+            pic:"",
             loadDoc: function (id) {
                 var autoSave;
                 var options = {
-                    container: 'luckysheet' ,//luckysheet为容器id
+                    container: 'luckysheet',//luckysheet为容器id
                     loadUrl: "https://localhost:7103/reports/" + id,
                     //updateUrl: "wss://localhost:7103/" + id,
                     lang: 'zh',
@@ -46,7 +46,7 @@
                     showinfobar: false,
                     showsheetbar: false,
                     column: 10,
-                    row:75,
+                    row: 75,
                     hook: {
                         updated: function (e) {
                             //监听更新,并在3s后自动保存
@@ -59,16 +59,16 @@
                                 //去除临时数据,减小体积
                                 //for (var i in excel) excel[i].data = undefined
                                 $.ajax({
-                                    type: 'POST' ,
+                                    type: 'POST',
                                     url: "https://localhost:7103/reports",
-                                    dataType: 'json' ,
-                                    contentType: "application/json" ,
+                                    dataType: 'json',
+                                    contentType: "application/json",
                                     data: JSON.stringify({ Id: id, Doc: JSON.stringify(excel) }),
                                     success: function (data) {
                                         $(luckysheet_info_detail_save).text("已保存")
                                     },
-                                    error: function (xhr, type){
-                                        alert( '数据加载失败' );
+                                    error: function (xhr, type) {
+                                        alert('数据加载失败');
                                     }
                                 });
                             }, 3 * 1000)
@@ -83,83 +83,58 @@
                 var autoSave;
                 var options = {
                     container: 'luckysheetviewer',//luckysheet为容器id
-                    loadUrl: "https://localhost:7103/reports/" + id+"/view",
+                    loadUrl: "https://localhost:7103/reports/" + id + "/view",
                     lang: 'zh',
                     showtoolbar: false,
                     showtoolbarConfig: false,
                     showinfobar: false,
-                    showstatisticBar:false,
-                    showstatisticBarConfig: { count: false, view: false,zoom:true},
+                    showstatisticBar: false,
+                    showstatisticBarConfig: { count: false, view: false, zoom: true },
                     showsheetbar: false,
                     showsheetbarConfig: false,
-                   
+
                     column: 10,
                     row: 75,
                 }
                 console.log(JSON.stringify(options))
                 luckysheet.create(options);
+                pic = luckysheet.getScreenshot("A1:J8");
             },
             downloadDoc: function (id) {
                 var excel = luckysheet.getAllSheets()[0];
                 luckysheet.transToCellData(excel["data"]);
+            },
+            printDoc: function () {
+        // 1. 实现全选
+        $('#luckysheet-left-top').click();
+        // 2. 生成选区的截图
+        let src = luckysheet.getScreenshot();
+        let imgSrc = src;
+                let iframe = document.createElement('IFRAME')
+                let doc = null
+                iframe.setAttribute('class', 'print-iframe')
+                iframe.setAttribute('style', 'position:absolute;width:0px;height:0px;left:-500px;top:-500px;')
+                document.body.appendChild(iframe)
+                doc = iframe.contentWindow.document
+                // 取一个不重复的方法名称，可以随机字符串
+                doc.___imageLoad___ = function () {
+                    iframe.contentWindow.print()
+                    if (navigator.userAgent.indexOf('MSIE') > 0) {
+                        document.body.removeChild(iframe)
+                    }
+                }
+                doc.write('<div style="height: 100%;width: 100%;">' + `<img src="${imgSrc}" style="max-height:100%;max-width: 100%;" onload="___imageLoad___()"/>` + '</div>')
+                doc.close()
+                iframe.contentWindow.focus()
             }
         }
-
-
-        //$(function () {
-        //    var name = "";
-        //    while (name.length == 0) {
-        //        name = prompt("请输入昵称")
-        //    }
-
-        //    var autoSave;
-        //    //配置项
-        //    var options = {
-        //        lang: 'zh',
-        //        container: 'luckysheet',
-        //        allowUpdate: true,
-        //        loadUrl: "https://localhost:7103/get",
-        //        hook: {
-        //            updated: function (e) {
-        //                //监听更新,并在3s后自动保存
-        //                if (autoSave) clearTimeout(autoSave)
-        //                $(luckysheet_info_detail_save).text("已修改")
-        //                autoSave = setTimeout(function () {
-        //                    var excel = luckysheet.getAllSheets();
-        //                    //去除临时数据,减小体积
-        //                    for (var i in excel) excel[i].data = undefined
-        //                    $.post(
-        //                        "https://localhost:7103/set",
-        //                        { jsonExcel: JSON.stringify(excel) },
-        //                        function () {
-        //                            $(luckysheet_info_detail_save).text("已保存")
-        //                        })
-        //                }, 3 * 1000)
-        //                return true;
-        //            }
-        //        },
-        //        updateUrl: "wss://localhost:7103/" + name
-        //    }
-
-        //    console.log(JSON.stringify(options))
-        //    luckysheet.create(options)
-        //})
-        //function save() {
-        //    var excel = luckysheet.getAllSheets();
-        //    $.post(
-        //        "https://localhost:7103/set",
-        //        { jsonExcel: JSON.stringify(excel) },
-        //        function () {
-        //            $(luckysheet_info_detail_save).text("已保存")
-        //        })
-
-        //}
     </script>
 </head>
 
 <body>
     <noscript>Out-of-the-box mid-stage front/design solution!</noscript>
-
+    <!--startprint-->
+    <!--endprint-->
     <div id="app">
         <style>
             html,
