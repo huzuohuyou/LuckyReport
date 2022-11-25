@@ -93,8 +93,8 @@ namespace LuckyReport.Server.Controllers
             
             InitData(jsonObject!, strDatasource);
             //InitCellData(jsonObject!, strDatasource);
-            var book=ExcelHepler.GenerateExcelStyle(jsonObject!.ToString());
-            ExcelHepler.GenerateExcelData(book, jsonObject!.ToString());
+            //var book=ExcelHepler.GenerateExcelStyle(jsonObject!.ToString());
+            //ExcelHepler.GenerateExcelData(book, jsonObject!.ToString());
             return jsonObject!.ToString();
         }
 
