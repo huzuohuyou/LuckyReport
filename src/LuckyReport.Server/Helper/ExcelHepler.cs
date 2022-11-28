@@ -433,7 +433,7 @@ namespace LuckSheet_.NetCore.Helper
             //stream.Close();
         }
 
-        public static void GenerateExcelData(IWorkbook workbook,string strData)
+        public static string GenerateExcelData(IWorkbook workbook,string strData)
         {
             List<JObject> dowExcels = JsonConvert.DeserializeObject<List<JObject>>(strData);
           
@@ -495,6 +495,7 @@ namespace LuckSheet_.NetCore.Helper
             stream.Seek(0, SeekOrigin.Begin);
             workbook.Close();
             stream.Close();
+            return Path.Combine(path, fileName);
         }
     }
 }

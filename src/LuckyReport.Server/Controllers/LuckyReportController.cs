@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LuckSheet_.NetCore.Helper;
+using System.IO;
 
 namespace LuckyReport.Server.Controllers
 {
@@ -85,20 +86,35 @@ namespace LuckyReport.Server.Controllers
             await using var db = new LuckyReportContext();
             //数据源获取
             var r = await db.Reports.Where(r => r.Id.Equals(id)).FirstOrDefaultAsync();
-            var strDatasource = $@"{{""datasource"":{JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7103/", new HttpClient()).GetWeatherForecastAsync())}}}";
-            //var dataSource = JsonObject.Parse(strDatasource);
-
+            var strDatasource = $@"{{""datasource"":{JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7031/", new HttpClient()).GetWeatherForecastAsync())}}}";
             //报表解析
             var jsonObject = JsonNode.Parse(r!.Doc);
             
             InitData(jsonObject!, strDatasource);
-            //InitCellData(jsonObject!, strDatasource);
-            //var book=ExcelHepler.GenerateExcelStyle(jsonObject!.ToString());
-            //ExcelHepler.GenerateExcelData(book, jsonObject!.ToString());
             return jsonObject!.ToString();
         }
 
-       
+        [HttpGet("/reports/{id}/excel", Name = nameof(Excel))]
+        public async Task<FileResult> Excel([FromRoute] [Required] int id)
+        {
+            await using var db = new LuckyReportContext();
+            //数据源获取
+            var r = await db.Reports.Where(r => r.Id.Equals(id)).FirstOrDefaultAsync();
+            var strDatasource = $@"{{""datasource"":{JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7031/", new HttpClient()).GetWeatherForecastAsync())}}}";
+            //报表解析
+            var jsonObject = JsonNode.Parse(r!.Doc);
+
+            InitData(jsonObject!, strDatasource);
+            var book = ExcelHepler.GenerateExcelStyle(jsonObject!.ToString());
+            var excelPath= ExcelHepler.GenerateExcelData(book, jsonObject!.ToString());
+
+            var actionresult = new FileStreamResult(System.IO.File.OpenRead(excelPath), new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            actionresult.FileDownloadName = "report.xlsx";
+            //Response.ContentLength = res.Length;
+            return actionresult;
+        }
+
+
         private void InitData(JsonNode doc, string dataSource)
         {
             var rows = doc.AsArray()[0]!["data"]!.AsArray();

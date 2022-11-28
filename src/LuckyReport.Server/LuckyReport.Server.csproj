@@ -7,11 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\WeatherForecastController.cs" />
     <Compile Remove="Models\LuckyReportContext.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <OpenApiReference Include="..\LuckyReport\swagger.json" CodeGenerator="NSwagCSharp" Link="OpenAPIs\swagger.json" />
+    <Compile Remove="WeatherForecast.cs" />
   </ItemGroup>
 
  
@@ -50,6 +48,14 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\UploadFiles\" />
+  </ItemGroup>
+
+ 
+
+  <ItemGroup>
+    <OpenApiReference Include="OpenAPIs\swagger.json" CodeGenerator="NSwagCSharp">
+      <SourceUri>https://localhost:7031/swagger/v1/swagger.json</SourceUri>
+    </OpenApiReference>
   </ItemGroup>
 
 </Project>

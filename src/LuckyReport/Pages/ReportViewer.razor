@@ -30,9 +30,9 @@
     }
     private async Task<bool> Download()
     {
-        var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
-        var ok = await new swaggerClient("https://localhost:7103/", new HttpClient()).PostAsync(new Report() { Id = id, Doc = doc });
-        return ok;
+        //var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
+       await new swaggerClient("https://localhost:7103/", new HttpClient()).ExcelAsync(id);
+        return true;
     }
 
     private async Task<bool> Save()
