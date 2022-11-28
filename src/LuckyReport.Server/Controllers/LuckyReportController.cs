@@ -95,6 +95,7 @@ namespace LuckyReport.Server.Controllers
         }
 
         [HttpGet("/reports/{id}/excel", Name = nameof(Excel))]
+        [Produces("application/json")]
         public async Task<string> Excel([FromRoute] [Required] int id)
         {
             await using var db = new LuckyReportContext();
