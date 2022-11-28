@@ -95,7 +95,7 @@ namespace LuckyReport.Server.Controllers
         }
 
         [HttpGet("/reports/{id}/excel", Name = nameof(Excel))]
-        public async Task<FileResult> Excel([FromRoute] [Required] int id)
+        public async Task<string> Excel([FromRoute] [Required] int id)
         {
             await using var db = new LuckyReportContext();
             //数据源获取
@@ -107,11 +107,7 @@ namespace LuckyReport.Server.Controllers
             InitData(jsonObject!, strDatasource);
             var book = ExcelHepler.GenerateExcelStyle(jsonObject!.ToString());
             var excelPath= ExcelHepler.GenerateExcelData(book, jsonObject!.ToString());
-
-            var actionresult = new FileStreamResult(System.IO.File.OpenRead(excelPath), new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-            actionresult.FileDownloadName = "report.xlsx";
-            //Response.ContentLength = res.Length;
-            return actionresult;
+            return $@"https://localhost:7103/StaticFiles/{excelPath}";
         }
 
 

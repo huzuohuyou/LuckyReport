@@ -484,18 +484,18 @@ namespace LuckSheet_.NetCore.Helper
             }
             
          
-            string path = $@"{Directory.GetCurrentDirectory()}{@"\wwwroot\UploadFiles\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\"}";
+            string path = $@"{Directory.GetCurrentDirectory()}{@"\wwwroot\UploadFiles\"}";
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
-            string fileName = $@"export_{DateTime.Now.ToString("hh_mm_ss")}.xls";
+            string fileName = $@"export_{DateTime.Now.ToString("yyyy-MM-dd-HHmmss")}.xls";
             FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.OpenOrCreate);
             workbook.Write(stream);
             stream.Seek(0, SeekOrigin.Begin);
             workbook.Close();
             stream.Close();
-            return Path.Combine(path, fileName);
+            return fileName;
         }
     }
 }

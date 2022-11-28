@@ -31,7 +31,10 @@
     private async Task<bool> Download()
     {
         //var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
-       await new swaggerClient("https://localhost:7103/", new HttpClient()).ExcelAsync(id);
+        var url = await new swaggerClient("https://localhost:7103/", new HttpClient()).ExcelAsync(id);
+        var fileName = "report.xls";
+        //Console.WriteLine(url);
+        await Js.InvokeVoidAsync("triggerFileDownload", fileName, url);
         return true;
     }
 

@@ -33,7 +33,7 @@
     </script>
     <script>
         window.luckyLoad = {
-            pic:"",
+            pic: "",
             loadDoc: function (id) {
                 var autoSave;
                 var options = {
@@ -128,6 +128,15 @@
                 doc.close()
                 iframe.contentWindow.focus()
             }
+        }
+    </script>
+    <script>
+        window.triggerFileDownload = (fileName, url) => {
+            const anchorElement = document.createElement('a');
+            anchorElement.href = url;
+            anchorElement.download = fileName ?? '';
+            anchorElement.click();
+            anchorElement.remove();
         }
     </script>
 </head>

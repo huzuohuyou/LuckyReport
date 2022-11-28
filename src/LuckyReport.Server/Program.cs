@@ -1,5 +1,6 @@
 using LuckyReport.Server.Models;
 using LuckyReport.Server.Services;
+using Microsoft.Extensions.FileProviders;
 using WebSocketSharp.Server;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.AddCors(options =>
         });
 });
 builder.Services.AddSingleton<Report>();
+builder.Services.AddDirectoryBrowser();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,6 +31,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseFileServer(new FileServerOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot\\UploadFiles")),
+    RequestPath = "/StaticFiles",
+    EnableDirectoryBrowsing = true
+});
 
 app.UseAuthorization();
 
