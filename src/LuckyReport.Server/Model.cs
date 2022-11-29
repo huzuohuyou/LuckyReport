@@ -1,13 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using LuckyReport.Server.Models;
+﻿using LuckyReport.Server.Models;
 
 public class LuckyReportContext : DbContext
 {
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<Report> Reports { get; set; }
+
+    public DbSet<DataSource> DataSources { get; set; }
     public string DbPath { get; }
 
     public LuckyReportContext()

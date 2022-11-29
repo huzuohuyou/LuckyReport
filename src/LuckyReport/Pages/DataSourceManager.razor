@@ -1,19 +1,44 @@
 ﻿@page "/datasourcs"
 @inject NavigationManager Navigation
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+
+<Modal Title="@("BasicModal")"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel">
+    <Form Loading="loading" Model="@model"
+          LabelColSpan="8"
+          WrapperColSpan="16"
+          OnFinish="OnFinish"
+          OnFinishFailed="OnFinishFailed"
+          @ref="@_form">
+        <FormItem Label="Name">
+            <Input @bind-Value="@context.Name" />
+        </FormItem>
+        <FormItem Label="Uri">
+            <Input @bind-Value="@context.Uri" />
+        </FormItem>
+    </Form>
+</Modal>
+
 <Card>
-    <Button Type="@ButtonType.Primary">新建</Button>
+    <Button Type="primary" OnClick="@ShowModal">
+        新建
+    </Button>
 </Card>
 <Card Style="height: 700px">
     <Table @ref="table"
-           TItem="Report"
-           DataSource="@reports"
+           TItem="DataSource"
+           DataSource="@dataSources"
            Total="_total"
            @bind-PageIndex="_pageIndex"
            @bind-PageSize="_pageSize"
            @bind-SelectedRows="selectedRows"
     >
         <PropertyColumn Property="c=>c.Id" Sortable />
-        <PropertyColumn Property="c=>c.Title" Sortable />
+        <PropertyColumn Property="c=>c.Name" Sortable />
+        <PropertyColumn Property="c=>c.Uri" Sortable />
         <ActionColumn Title="Action">
             <Space>
                 <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">Edit</Button></SpaceItem>
@@ -35,9 +60,9 @@
 
 @code {
 
-    Report[] reports;
+    IEnumerable<DataSource> dataSources;
 
-    IEnumerable<Report> selectedRows;
+    IEnumerable<DataSource> selectedRows;
     ITable table;
 
     int _pageIndex = 1;
@@ -46,8 +71,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        reports = (await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAllAsync()).ToArray();
-        _total = reports.Length;
+        dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        _total = dataSources.Count();
     }
     
     private void Edit(int id)
@@ -57,8 +82,84 @@
 
     private void Delete(int id)
     {
-        reports = reports.Where(x => x.Id != id).ToArray();
-        _total = reports.Length;
+        dataSources = dataSources.Where(x => x.Id != id).ToArray();
+        _total = dataSources.Count();
     }
 
+    #region original form coding
+    //public class Model
+    //{
+    //    [Required]
+    //    public string Username { get; set; }
+    //    [Required]
+    //    public string Password { get; set; }
+    //    public bool RememberMe { get; set; } = true;
+    //}
+
+    private DataSource model = new DataSource();
+
+    private  void OnFinishFailed(EditContext editContext)
+    {
+        toggle(false);
+        //dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        //_total = dataSources.Count();
+        //_visible = false;
+        Console.WriteLine($"Failed:{JsonSerializer.Serialize(model)}");
+    }
+
+    bool loading = false;
+
+    void toggle(bool value) => loading = value;
+
+    #endregion
+
+    #region original modal coding
+
+    bool _visible = false;
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        toggle(false);
+        Console.WriteLine("e");
+        _visible = false;
+    }
+
+    #endregion
+
+    /*
+     * Careful!
+     *
+     * next bind submit event to modal OK button
+     */
+
+    private Form<DataSource> _form;
+
+    /// <summary>
+    /// when form is submited, close the modal
+    /// </summary>
+    /// <param name="args"></param>
+    private async Task OnFinish(EditContext editContext)
+    {
+        toggle(false);
+        dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        _total = dataSources.Count();
+        _visible = false;
+    }
+
+    /// <summary>
+    /// on modal OK button is click, submit form manually
+    /// </summary>
+    /// <param name="e"></param>
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        toggle(true);
+        var m = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAsync(model);
+        
+        _form.Submit();
+    }
 }

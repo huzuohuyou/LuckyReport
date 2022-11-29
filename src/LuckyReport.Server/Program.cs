@@ -1,3 +1,4 @@
+using LuckyReport.Server.Controllers;
 using LuckyReport.Server.Models;
 using LuckyReport.Server.Services;
 using Microsoft.Extensions.FileProviders;
@@ -20,6 +21,8 @@ builder.Services.AddCors(options =>
         });
 });
 builder.Services.AddSingleton<Report>();
+builder.Services.AddSingleton<LuckyReportContext>();
+
 builder.Services.AddDirectoryBrowser();
 var app = builder.Build();
 

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
