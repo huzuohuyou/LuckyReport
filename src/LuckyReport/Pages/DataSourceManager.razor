@@ -36,10 +36,10 @@
            @bind-PageSize="_pageSize"
            @bind-SelectedRows="selectedRows"
     >
-        <PropertyColumn Property="c=>c.Id" Sortable />
-        <PropertyColumn Property="c=>c.Name" Sortable />
-        <PropertyColumn Property="c=>c.Uri" Sortable />
-        <ActionColumn Title="Action">
+        <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
+        <PropertyColumn Width="200" Property="c=>c.Name" Sortable />
+        <PropertyColumn  Property="c=>c.Uri" Sortable />
+        <ActionColumn Width="240" Title="Action">
             <Space>
                 <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">Edit</Button></SpaceItem>
                 <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
@@ -49,14 +49,6 @@
 </Card>
 
 
-
-<br />
-<p>PageIndex: @_pageIndex | PageSize: @_pageSize | Total: @_total</p>
-
-<br />
-<h5>selections:</h5>
-<Button OnClick="()=> { _pageIndex--; }">Previous page</Button>
-<Button OnClick="()=> { _pageIndex++; }">Next Page</Button>
 
 @code {
 
@@ -82,7 +74,7 @@
 
     private async Task Delete(int id)
     {
-         await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSources4Async(id);
+        await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSources4Async(id);
         dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
         _total = dataSources.Count();
     }

@@ -21,12 +21,14 @@ namespace LuckyReport.Server.Controllers
             _dataSourceHelper= dataSourceHelper;
         }
         [HttpPost("/get", Name = nameof(GetDoc))]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public Task<string> GetDoc()
         {
             return Task.FromResult(_report.Doc);
         }
 
         [HttpPost("/set", Name = nameof(SetDoc))]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<bool> SetDoc(string jsonExcel)
         {
             _report.Doc = jsonExcel;
@@ -37,28 +39,30 @@ namespace LuckyReport.Server.Controllers
             return c == 1;
         }
 
-        [HttpPost("/reports", Name = nameof(Post))]
-        public async Task<bool> Post([FromBody][Required] Report report)
-        {
-            try
-            {
-                report.Title = "new";
-                await using var db = new LuckyReportContext();
-                var r = await db.Reports.Where(r => r.Id.Equals(report.Id)).FirstOrDefaultAsync();
-                r!.Doc = report.Doc;
-                var c = await db.SaveChangesAsync();
-                Console.WriteLine(c == 1);
-                return c == 1;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+        //[HttpPost("/reports", Name = nameof(Post))]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        //public async Task<bool> Post([FromBody][Required] Report report)
+        //{
+        //    try
+        //    {
+        //        report.Title = "new";
+        //        await using var db = new LuckyReportContext();
+        //        var r = await db.Reports.Where(r => r.Id.Equals(report.Id)).FirstOrDefaultAsync();
+        //        r!.Doc = report.Doc;
+        //        var c = await db.SaveChangesAsync();
+        //        Console.WriteLine(c == 1);
+        //        return c == 1;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        throw;
+        //    }
 
-        }
+        //}
 
         [HttpGet("/reports", Name = nameof(GetAll))]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IEnumerable<Report>> GetAll()
         {
             await using var db = new LuckyReportContext();
@@ -67,6 +71,7 @@ namespace LuckyReport.Server.Controllers
         }
 
         [HttpPost("/reports/{id}", Name = nameof(Get))]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<string> Get([FromRoute][Required] int id)
         {
             await using var db = new LuckyReportContext();
@@ -103,11 +108,10 @@ namespace LuckyReport.Server.Controllers
             await using var db = new LuckyReportContext();
             //数据源获取
             var r = await db.Reports.Where(r => r.Id.Equals(id)).FirstOrDefaultAsync();
-            var strDatasource = $@"{{""datasource"":{JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7031/", new HttpClient()).GetWeatherForecastAsync())}}}";
             //报表解析
             var jsonObject = JsonNode.Parse(r!.Doc);
 
-            await InitData(jsonObject!, strDatasource);
+            await InitData(jsonObject!);
             var book = ExcelHepler.GenerateExcelStyle(jsonObject!.ToString());
             var excelPath= ExcelHepler.GenerateExcelData(book, jsonObject!.ToString());
             return $@"https://localhost:7103/StaticFiles/{excelPath}";
@@ -137,9 +141,10 @@ namespace LuckyReport.Server.Controllers
             return _dataSourceDictionary[name];
         }
 
-        private async Task InitData(JsonNode doc, string dataSource="")
+        private async Task InitData(JsonNode doc)
         {
-            var rows = doc.AsArray()[0]!["data"]!.AsArray();
+            var rows = doc.AsArray()[0]!["data"]?.AsArray();
+            if (rows == null) return;
             for (int columnIndex = 0; columnIndex < rows[0]!.AsArray().Count; columnIndex++)
             {
                 for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
@@ -148,7 +153,7 @@ namespace LuckyReport.Server.Controllers
                     if (cell is null)
                         continue;
                     var path = cell["m"]?.ToString();
-                    dataSource = await InitDataSource(path);
+                    var dataSource = await InitDataSource(path);
                     if (string.IsNullOrWhiteSpace(path))
                         continue;
                     var index = 0;

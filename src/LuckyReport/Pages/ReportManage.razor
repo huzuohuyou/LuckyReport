@@ -1,8 +1,29 @@
 ﻿@page "/reports"
 @inject NavigationManager Navigation
 
+@using System.Text.Json
+
+<Modal Title="@("BasicModal")"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel">
+    <Form Loading="loading" Model="@model"
+          LabelColSpan="8"
+          WrapperColSpan="16"
+          OnFinish="OnFinish"
+          OnFinishFailed="OnFinishFailed"
+          @ref="@_form">
+        <FormItem Label="Name">
+            <Input @bind-Value="@context.Title" />
+        </FormItem>
+        
+    </Form>
+</Modal>
+
 <Card>
-    <Button Type="@ButtonType.Primary">新建</Button>
+    <Button Type="primary" OnClick="@ShowModal">
+        新建
+    </Button>
 </Card>
 <Card Style="height: 700px">
     <Table @ref="table"
@@ -13,9 +34,9 @@
            @bind-PageSize="_pageSize"
            @bind-SelectedRows="selectedRows"
     >
-        <PropertyColumn Property="c=>c.Id" Sortable />
-        <PropertyColumn Property="c=>c.Title" Sortable />
-        <ActionColumn Title="Action">
+        <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
+        <PropertyColumn   Property="c=>c.Title" Sortable />
+        <ActionColumn Width="240"  Title="Action">
             <Space>
                 <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">  Edit  </Button></SpaceItem>
                 <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>View(context.Id)">  View  </Button></SpaceItem>
@@ -26,20 +47,11 @@
 </Card>
 
 
-
-<br />
-<p>PageIndex: @_pageIndex | PageSize: @_pageSize | Total: @_total</p>
-
-<br />
-<h5>selections:</h5>
-<Button OnClick="()=> { _pageIndex--; }">Previous page</Button>
-<Button OnClick="()=> { _pageIndex++; }">Next Page</Button>
-
 @code {
-
-    Report[] reports;
+    IEnumerable<Report> reports;
 
     IEnumerable<Report> selectedRows;
+   
     ITable table;
 
     int _pageIndex = 1;
@@ -48,8 +60,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        reports = (await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAllAsync()).ToArray();
-        _total = reports.Length;
+        reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _total = reports.Count();
     }
     
     private void Edit(int id)
@@ -62,10 +74,76 @@
         Navigation.NavigateTo($@"reports/{id}/view");
     }
 
-    private void Delete(int id)
+    private async Task Delete(int id)
     {
-        reports = reports.Where(x => x.Id != id).ToArray();
-        _total = reports.Length;
+        await new swaggerClient("https://localhost:7103/", new HttpClient()).Reports4Async(id);
+        reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _total = reports.Count();
+    }
+    #region original form coding
+   
+
+    private Report model = new Report();
+
+    private  void OnFinishFailed(EditContext editContext)
+    {
+        toggle(false);
+        Console.WriteLine($"Failed:{JsonSerializer.Serialize(model)}");
     }
 
+    bool loading = false;
+
+    void toggle(bool value) => loading = value;
+
+    #endregion
+
+    #region original modal coding
+
+    bool _visible = false;
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        toggle(false);
+        Console.WriteLine("e");
+        _visible = false;
+    }
+
+    #endregion
+
+    /*
+     * Careful!
+     *
+     * next bind submit event to modal OK button
+     */
+
+    private Form<Report> _form;
+
+    /// <summary>
+    /// when form is submited, close the modal
+    /// </summary>
+    /// <param name="args"></param>
+    private async Task OnFinish(EditContext editContext)
+    {
+        toggle(false);
+        reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _total = reports.Count();
+        _visible = false;
+    }
+
+    /// <summary>
+    /// on modal OK button is click, submit form manually
+    /// </summary>
+    /// <param name="e"></param>
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        toggle(true);
+        var m = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAsync(model);
+        
+        _form.Submit();
+    }
 }

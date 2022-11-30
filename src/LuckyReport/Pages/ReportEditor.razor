@@ -17,10 +17,10 @@
         await Js.InvokeVoidAsync("luckyLoad.loadDoc",id);
     }
 
-    private async Task<bool> Save()
-    {
-        var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
-        var ok = await new swaggerClient("https://localhost:7103/", new HttpClient()).PostAsync(new Report() { Id = id, Doc = doc });
-        return ok;
-    }
+    //private async Task<bool> Save()
+    //{
+    //    var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
+    //    var ok = await new swaggerClient("https://localhost:7103/", new HttpClient()).Reports3Async(new Report() { Id = id, Doc = doc });
+    //    return ok;
+    //}
 }

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using LuckyReport.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LuckyReport.Server.Models;
 
 namespace LuckyReport.Server.Controllers
 {
     [Route("api/[controller]")]
+    [AllowAnonymous]
     [ApiController]
     public class ReportsController : ControllerBase
     {
@@ -52,7 +48,7 @@ namespace LuckyReport.Server.Controllers
         // PUT: api/Reports/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutReport(int id, Report report)
+        public async Task<IActionResult> PutReport(int id, [FromBody] Report report)
         {
             if (id != report.Id)
             {
@@ -83,7 +79,7 @@ namespace LuckyReport.Server.Controllers
         // POST: api/Reports
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Report>> PostReport(Report report)
+        public async Task<ActionResult<Report>> PostReport([FromBody]Report report)
         {
           if (_context.Reports == null)
           {
@@ -92,8 +88,21 @@ namespace LuckyReport.Server.Controllers
             _context.Reports.Add(report);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetReport", new { id = report.Id }, report);
+            return Ok();
         }
+
+        //[HttpPost]
+        //public async Task<ActionResult<DataSource>> PostDataSource(DataSource dataSource)
+        //{
+        //    if (_context.DataSources == null)
+        //    {
+        //        return Problem("Entity set 'LuckyReportContext.DataSources'  is null.");
+        //    }
+        //    _context.DataSources.Add(dataSource);
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok();
+        //}
 
         // DELETE: api/Reports/5
         [HttpDelete("{id}")]
