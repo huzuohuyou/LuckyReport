@@ -77,12 +77,13 @@
     
     private void Edit(int id)
     {
-        Navigation.NavigateTo($@"reports/{id}");
+        //Navigation.NavigateTo($@"reports/{id}");
     }
 
-    private void Delete(int id)
+    private async Task Delete(int id)
     {
-        dataSources = dataSources.Where(x => x.Id != id).ToArray();
+         await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSources4Async(id);
+        dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
         _total = dataSources.Count();
     }
 

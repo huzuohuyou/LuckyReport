@@ -1,4 +1,5 @@
 using LuckyReport.Server.Controllers;
+using LuckyReport.Server.Helper;
 using LuckyReport.Server.Models;
 using LuckyReport.Server.Services;
 using Microsoft.Extensions.FileProviders;
@@ -22,7 +23,8 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddSingleton<Report>();
 builder.Services.AddSingleton<LuckyReportContext>();
-
+builder.Services.AddSingleton<DataSourceHelper>();
+//静态文件目录浏览
 builder.Services.AddDirectoryBrowser();
 var app = builder.Build();
 
@@ -34,7 +36,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+//静态文件目录
 app.UseFileServer(new FileServerOptions
 {
     FileProvider = new PhysicalFileProvider(

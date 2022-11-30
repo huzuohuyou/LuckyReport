@@ -8,11 +8,12 @@ namespace LuckyReport.Server.Helper
         {
             try
             {
-                var rkey = $@"$.datasource.{key.ToLower()}";//一般属性模型
-                if (key.StartsWith('['))//数组模型
-                    rkey = $@"$.datasource{key.ToLower()}";
+                if (string.IsNullOrWhiteSpace(json)) return new(false, string.Empty);
+                //var rkey = $@"$.datasource.{key.ToLower()}";//一般属性模型
+                //if (key.StartsWith('['))//数组模型
+                //    rkey = $@"$.datasource{key.ToLower()}";
                 JObject obj = JObject.Parse(json.ToLower());
-                JToken? token = obj.SelectToken(rkey);
+                JToken? token = obj.SelectToken(key.ToLower());
                 if (token != null)
                     return new (true,token.Value<string>()!);
                 return new (false,string.Empty);

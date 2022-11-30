@@ -1,3 +1,4 @@
+using LuckSheet_.NetCore.Helper;
 using LuckyReport.Server.Helper;
 using LuckyReport.Server.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -5,18 +6,19 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LuckSheet_.NetCore.Helper;
-using System.IO;
+using System.Text.RegularExpressions;
 
 namespace LuckyReport.Server.Controllers
 {
     public class LuckyReportController : ControllerBase
     {
-
+        private Dictionary<string,string> _dataSourceDictionary=new ();
         private readonly Report _report;
-        public LuckyReportController(Report report)
+        private readonly DataSourceHelper _dataSourceHelper;
+        public LuckyReportController(Report report, DataSourceHelper dataSourceHelper)
         {
             _report = report;
+            _dataSourceHelper= dataSourceHelper;
         }
         [HttpPost("/get", Name = nameof(GetDoc))]
         public Task<string> GetDoc()
@@ -86,11 +88,11 @@ namespace LuckyReport.Server.Controllers
             await using var db = new LuckyReportContext();
             //数据源获取
             var r = await db.Reports.Where(r => r.Id.Equals(id)).FirstOrDefaultAsync();
-            var strDatasource = $@"{{""datasource"":{JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7031/", new HttpClient()).GetWeatherForecastAsync())}}}";
+            //var strDatasource =await _dataSourceHelper.GetDataSource("");// $@"{{""datasource"":{JsonConvert.SerializeObject(await new swaggerClient("https://localhost:7031/", new HttpClient()).GetWeatherForecastAsync())}}}";
             //报表解析
             var jsonObject = JsonNode.Parse(r!.Doc);
             
-            InitData(jsonObject!, strDatasource);
+            await InitData(jsonObject!);
             return jsonObject!.ToString();
         }
 
@@ -105,14 +107,37 @@ namespace LuckyReport.Server.Controllers
             //报表解析
             var jsonObject = JsonNode.Parse(r!.Doc);
 
-            InitData(jsonObject!, strDatasource);
+            await InitData(jsonObject!, strDatasource);
             var book = ExcelHepler.GenerateExcelStyle(jsonObject!.ToString());
             var excelPath= ExcelHepler.GenerateExcelData(book, jsonObject!.ToString());
             return $@"https://localhost:7103/StaticFiles/{excelPath}";
         }
 
+        /// <summary>
+        /// 数据源初始化
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<string> InitDataSource(string path)
+        {
+            if(string.IsNullOrWhiteSpace(path)) return string.Empty;
+            var match = Regex.Match(path, @"(?<txt>(?<=\$\.).+(?=\[))");//单个值匹配
+            if (!match.Success)
+                match = Regex.Match(path, @"(?<txt>(?<=\$\.).+(?=\.))");//table匹配
+            if (!match.Success)//都没有匹配到值
+                return string.Empty;//throw new Exception("没有匹配到数据源");
+            var name = match.Value;
+            if (!_dataSourceDictionary.ContainsKey(name))
+            {
+                var value = await _dataSourceHelper.GetDataSource(name);
+                if (string.IsNullOrWhiteSpace(value)) throw new Exception("数据源为空");
+                _dataSourceDictionary.Add(name, value);
+            }
+            return _dataSourceDictionary[name];
+        }
 
-        private void InitData(JsonNode doc, string dataSource)
+        private async Task InitData(JsonNode doc, string dataSource="")
         {
             var rows = doc.AsArray()[0]!["data"]!.AsArray();
             for (int columnIndex = 0; columnIndex < rows[0]!.AsArray().Count; columnIndex++)
@@ -123,6 +148,7 @@ namespace LuckyReport.Server.Controllers
                     if (cell is null)
                         continue;
                     var path = cell["m"]?.ToString();
+                    dataSource = await InitDataSource(path);
                     if (string.IsNullOrWhiteSpace(path))
                         continue;
                     var index = 0;
@@ -142,35 +168,35 @@ namespace LuckyReport.Server.Controllers
             }
         }
 
-        private void InitCellData(JsonNode doc, string dataSource)
-        {
-            var rows = doc.AsArray()[0]!["celldata"]!.AsArray();
-            for (int columnIndex = 0; columnIndex < rows[0]!.AsArray().Count; columnIndex++)
-            {
-                for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
-                {
-                    var cell = rows[rowIndex]![columnIndex];
-                    if (cell is null)
-                        continue;
-                    var path = cell["m"]?.ToString();
-                    if (string.IsNullOrWhiteSpace(path))
-                        continue;
-                    var index = 0;
-                    if (path.Contains('#'))
-                        FillTable(ref rowIndex, ref index, columnIndex, path, dataSource, rows, cell);
-                    else
-                    {//单个值数据填充
-                        var value = JsonHelper.GetValue(path, dataSource);
-                        if (value.ok)
-                        {
-                            rows[rowIndex + index]![columnIndex]!["v"] = value.value;
-                            rows[rowIndex + index]![columnIndex]!["m"] = value.value;
-                        }
-                    }
-                    rowIndex += index;
-                }
-            }
-        }
+        //private void InitCellData(JsonNode doc, string dataSource)
+        //{
+        //    var rows = doc.AsArray()[0]!["celldata"]!.AsArray();
+        //    for (int columnIndex = 0; columnIndex < rows[0]!.AsArray().Count; columnIndex++)
+        //    {
+        //        for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+        //        {
+        //            var cell = rows[rowIndex]![columnIndex];
+        //            if (cell is null)
+        //                continue;
+        //            var path = cell["m"]?.ToString();
+        //            if (string.IsNullOrWhiteSpace(path))
+        //                continue;
+        //            var index = 0;
+        //            if (path.Contains('#'))
+        //                FillTable(ref rowIndex, ref index, columnIndex, path, dataSource, rows, cell);
+        //            else
+        //            {//单个值数据填充
+        //                var value = JsonHelper.GetValue(path, dataSource);
+        //                if (value.ok)
+        //                {
+        //                    rows[rowIndex + index]![columnIndex]!["v"] = value.value;
+        //                    rows[rowIndex + index]![columnIndex]!["m"] = value.value;
+        //                }
+        //            }
+        //            rowIndex += index;
+        //        }
+        //    }
+        //}
         /// <summary>
         /// 表格数据填充
         /// </summary>
