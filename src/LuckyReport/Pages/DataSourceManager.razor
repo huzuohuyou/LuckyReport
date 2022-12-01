@@ -1,13 +1,11 @@
 ﻿@page "/datasourcs"
-@inject NavigationManager Navigation
-@using System.ComponentModel.DataAnnotations
 @using System.Text.Json
 
 <Modal Title="@("BasicModal")"
        Visible="@_visible"
        OnOk="@HandleOk"
        OnCancel="@HandleCancel">
-    <Form Loading="loading" Model="@model"
+    <Form Loading="_loading" Model="@_model"
           LabelColSpan="8"
           WrapperColSpan="16"
           OnFinish="OnFinish"
@@ -28,13 +26,13 @@
     </Button>
 </Card>
 <Card Style="height: 700px">
-    <Table @ref="table"
+    <Table @ref="_table"
            TItem="DataSource"
-           DataSource="@dataSources"
+           DataSource="@_dataSources"
            Total="_total"
            @bind-PageIndex="_pageIndex"
            @bind-PageSize="_pageSize"
-           @bind-SelectedRows="selectedRows"
+           @bind-SelectedRows="_selectedRows"
     >
         <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
         <PropertyColumn Width="200" Property="c=>c.Name" Sortable />
@@ -52,19 +50,18 @@
 
 @code {
 
-    IEnumerable<DataSource> dataSources;
-
-    IEnumerable<DataSource> selectedRows;
-    ITable table;
+    IEnumerable<DataSource> _dataSources;
+    IEnumerable<DataSource> _selectedRows;
+    ITable _table;
 
     int _pageIndex = 1;
     int _pageSize = 10;
-    int _total = 0;
+    int _total;
 
     protected override async Task OnInitializedAsync()
     {
-        dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
-        _total = dataSources.Count();
+        _dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        _total = _dataSources.Count();
     }
     
     private void Edit(int id)
@@ -75,40 +72,32 @@
     private async Task Delete(int id)
     {
         await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSources4Async(id);
-        dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
-        _total = dataSources.Count();
+        _dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        _total = _dataSources.Count();
     }
 
     #region original form coding
-    //public class Model
-    //{
-    //    [Required]
-    //    public string Username { get; set; }
-    //    [Required]
-    //    public string Password { get; set; }
-    //    public bool RememberMe { get; set; } = true;
-    //}
 
-    private DataSource model = new DataSource();
+    private readonly DataSource _model = new ();
 
     private  void OnFinishFailed(EditContext editContext)
     {
-        toggle(false);
+        Toggle(false);
         //dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
         //_total = dataSources.Count();
         //_visible = false;
-        Console.WriteLine($"Failed:{JsonSerializer.Serialize(model)}");
+        Console.WriteLine($"Failed:{JsonSerializer.Serialize(_model)}");
     }
 
-    bool loading = false;
+    bool _loading;
 
-    void toggle(bool value) => loading = value;
+    void Toggle(bool value) => _loading = value;
 
     #endregion
 
     #region original modal coding
 
-    bool _visible = false;
+    bool _visible;
 
     private void ShowModal()
     {
@@ -117,7 +106,7 @@
 
     private void HandleCancel(MouseEventArgs e)
     {
-        toggle(false);
+        Toggle(false);
         Console.WriteLine("e");
         _visible = false;
     }
@@ -135,12 +124,11 @@
     /// <summary>
     /// when form is submited, close the modal
     /// </summary>
-    /// <param name="args"></param>
     private async Task OnFinish(EditContext editContext)
     {
-        toggle(false);
-        dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
-        _total = dataSources.Count();
+        Toggle(false);
+        _dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        _total = _dataSources.Count();
         _visible = false;
     }
 
@@ -150,9 +138,8 @@
     /// <param name="e"></param>
     private async Task HandleOk(MouseEventArgs e)
     {
-        toggle(true);
-        var m = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAsync(model);
-        
+        Toggle(true);
+        await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAsync(_model);
         _form.Submit();
     }
 }

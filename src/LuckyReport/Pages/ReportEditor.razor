@@ -1,26 +1,18 @@
 ﻿@page "/reports/{id:int}"
 @inject IJSRuntime Js
 <Card>
-    <h1>Report Editor @id</h1>
+    <h1>Report Editor @Id</h1>
 </Card>
 <Card Style="height: 700px">
-    <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
+    <div id="luckysheet" style="margin:0;padding:0;position:absolute;width:100%;height:100%;left: 0;top: 0;"></div>
 </Card>
 
 @code {
     [Parameter]
-    public int id { get; set; }
+    public int Id { get; set; }
    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        //var report = await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAsync(id);
-        await Js.InvokeVoidAsync("luckyLoad.loadDoc",id);
+        await Js.InvokeVoidAsync("luckyLoad.loadDoc",Id);
     }
-
-    //private async Task<bool> Save()
-    //{
-    //    var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
-    //    var ok = await new swaggerClient("https://localhost:7103/", new HttpClient()).Reports3Async(new Report() { Id = id, Doc = doc });
-    //    return ok;
-    //}
 }

@@ -1,15 +1,15 @@
 ﻿@page "/"
 
-@inject IJSRuntime jsr
+@inject IJSRuntime Jsr
 @code {
     public void Todo()
     {
-        jsr.InvokeVoidAsync("luckyLoad.runJs");
+        Jsr.InvokeVoidAsync("luckyLoad.runJs");
     }
 
     public void Save()
     {
-        jsr.InvokeVoidAsync("luckyLoad.save");
+        Jsr.InvokeVoidAsync("luckyLoad.save");
     }
 }
 <Card>

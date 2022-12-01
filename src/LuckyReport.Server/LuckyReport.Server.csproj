@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\WeatherForecastController.cs" />
+    <Compile Remove="Controllers\WebSocketController.cs" />
+    <Compile Remove="Helper\GZIPHelper.cs" />
     <Compile Remove="Models\LuckyReportContext.cs" />
     <Compile Remove="WeatherForecast.cs" />
   </ItemGroup>

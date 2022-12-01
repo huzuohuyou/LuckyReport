@@ -7,7 +7,7 @@
        Visible="@_visible"
        OnOk="@HandleOk"
        OnCancel="@HandleCancel">
-    <Form Loading="loading" Model="@model"
+    <Form Loading="_loading" Model="@_model"
           LabelColSpan="8"
           WrapperColSpan="16"
           OnFinish="OnFinish"
@@ -26,13 +26,13 @@
     </Button>
 </Card>
 <Card Style="height: 700px">
-    <Table @ref="table"
+    <Table @ref="_table"
            TItem="Report"
-           DataSource="@reports"
+           DataSource="@_reports"
            Total="_total"
            @bind-PageIndex="_pageIndex"
            @bind-PageSize="_pageSize"
-           @bind-SelectedRows="selectedRows"
+           @bind-SelectedRows="_selectedRows"
     >
         <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
         <PropertyColumn   Property="c=>c.Title" Sortable />
@@ -48,20 +48,18 @@
 
 
 @code {
-    IEnumerable<Report> reports;
-
-    IEnumerable<Report> selectedRows;
-   
-    ITable table;
+    IEnumerable<Report> _reports;
+    IEnumerable<Report> _selectedRows;
+    ITable _table;
 
     int _pageIndex = 1;
     int _pageSize = 10;
-    int _total = 0;
+    int _total;
 
     protected override async Task OnInitializedAsync()
     {
-        reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
-        _total = reports.Count();
+        _reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _total = _reports.Count();
     }
     
     private void Edit(int id)
@@ -77,29 +75,29 @@
     private async Task Delete(int id)
     {
         await new swaggerClient("https://localhost:7103/", new HttpClient()).Reports4Async(id);
-        reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
-        _total = reports.Count();
+        _reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _total = _reports.Count();
     }
     #region original form coding
    
 
-    private Report model = new Report();
+    private Report _model = new Report();
 
     private  void OnFinishFailed(EditContext editContext)
     {
-        toggle(false);
-        Console.WriteLine($"Failed:{JsonSerializer.Serialize(model)}");
+        Toggle(false);
+        Console.WriteLine($"Failed:{JsonSerializer.Serialize(_model)}");
     }
 
-    bool loading = false;
+    bool _loading;
 
-    void toggle(bool value) => loading = value;
+    void Toggle(bool value) => _loading = value;
 
     #endregion
 
     #region original modal coding
 
-    bool _visible = false;
+    bool _visible;
 
     private void ShowModal()
     {
@@ -108,7 +106,7 @@
 
     private void HandleCancel(MouseEventArgs e)
     {
-        toggle(false);
+        Toggle(false);
         Console.WriteLine("e");
         _visible = false;
     }
@@ -126,12 +124,11 @@
     /// <summary>
     /// when form is submited, close the modal
     /// </summary>
-    /// <param name="args"></param>
     private async Task OnFinish(EditContext editContext)
     {
-        toggle(false);
-        reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
-        _total = reports.Count();
+        Toggle(false);
+        _reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _total = _reports.Count();
         _visible = false;
     }
 
@@ -141,9 +138,8 @@
     /// <param name="e"></param>
     private async Task HandleOk(MouseEventArgs e)
     {
-        toggle(true);
-        var m = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAsync(model);
-        
+        Toggle(true);
+        await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAsync(_model);
         _form.Submit();
     }
 }

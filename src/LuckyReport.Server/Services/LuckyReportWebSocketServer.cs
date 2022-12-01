@@ -2,50 +2,49 @@
 using WebSocketSharp.Server;
 using ErrorEventArgs = WebSocketSharp.ErrorEventArgs;
 
-namespace LuckyReport.Server.Services
+namespace LuckyReport.Server.Services;
+
+public class Chat : WebSocketBehavior
 {
-    public class Chat : WebSocketBehavior
-    {
-        private Dictionary<IWebSocketSession,string> conns
+    private Dictionary<IWebSocketSession,string> _conns
         = new Dictionary<IWebSocketSession,string>();
-        private string _suffix;
+    private string _suffix;
 
-        public Chat()
+    public Chat()
+    {
+        _suffix = String.Empty;
+    }
+
+    public string Suffix
+    {
+        get
         {
-            _suffix = String.Empty;
+            return _suffix;
         }
 
-        public string Suffix
+        set
         {
-            get
-            {
-                return _suffix;
-            }
-
-            set
-            {
-                _suffix = value ?? String.Empty;
-            }
+            _suffix = value ?? String.Empty;
         }
+    }
 
-        protected override void OnOpen()
-        {
-            Console.WriteLine();
-        }
+    protected override void OnOpen()
+    {
+        Console.WriteLine();
+    }
 
-        protected override void OnError(ErrorEventArgs e)
-        {
-            Console.WriteLine();
-        }
+    protected override void OnError(ErrorEventArgs e)
+    {
+        Console.WriteLine();
+    }
 
-        protected override void OnClose(CloseEventArgs e)
-        {
-            Console.WriteLine();
-        }
+    protected override void OnClose(CloseEventArgs e)
+    {
+        Console.WriteLine();
+    }
 
-        protected override void OnMessage(MessageEventArgs e)
-        {
-            Sessions.Broadcast(e.Data + _suffix);
-        }
+    protected override void OnMessage(MessageEventArgs e)
+    {
+        Sessions.Broadcast(e.Data + _suffix);
     }
 }
