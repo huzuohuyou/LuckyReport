@@ -100,6 +100,7 @@ public class LuckyReportController : ControllerBase
 
     [HttpGet("/reports/{id}/excel", Name = nameof(Excel))]
     [Produces("application/json")]
+    [Obsolete("Obsolete")]
     public async Task<string> Excel([FromRoute] [Required] int id)
     {
         await using var db = new LuckyReportContext();
