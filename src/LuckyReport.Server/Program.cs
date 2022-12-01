@@ -18,6 +18,7 @@ builder.Services.AddCors(options =>
             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
         });
 });
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<Report>();
 builder.Services.AddSingleton<LuckyReportContext>();
 builder.Services.AddSingleton<DataSourceHelper>();

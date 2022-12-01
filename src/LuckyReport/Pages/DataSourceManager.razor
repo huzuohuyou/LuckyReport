@@ -1,5 +1,6 @@
 ﻿@page "/datasourcs"
 @using System.Text.Json
+@using LuckyReport.Shared
 
 <Modal Title="@("BasicModal")"
        Visible="@_visible"
@@ -21,7 +22,7 @@
 </Modal>
 
 <Card>
-    <Button Type="primary" OnClick="@ShowModal">
+    <Button Type="@ButtonType.Primary" OnClick="@ShowModal">
         新建
     </Button>
 </Card>

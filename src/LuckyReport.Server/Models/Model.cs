@@ -2,6 +2,7 @@
 
 public class LuckyReportContext : DbContext
 {
+    public DbSet<Filter>? Filters { get; set; }
     public DbSet<Report>? Reports { get; set; }
 
     public DbSet<DataSource>? DataSources { get; set; }
