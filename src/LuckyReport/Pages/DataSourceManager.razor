@@ -109,7 +109,7 @@
             
                 @if (!editCache[data.Id].edit)
                 {
-                    <a @onclick="() => StartEdit(data.Id)">Delete</a>
+                    <a @onclick="() => DeleteFilter(data.Id)">Delete</a>
                 }
                 else
                 {
@@ -344,6 +344,13 @@
     {
         var data = editCache[id];
         editCache[id] = (true, data.data); // add a copy in cache
+    }
+
+    async void DeleteFilter(int id)
+    {
+        await LuckyReportHelper.SwaggerClient.Filters4Async(id);
+        editCache.Remove(id);
+        listOfData = await LuckyReportHelper.SwaggerClient.FiltersAllAsync();
     }
 
     void CancelEdit(int id)

@@ -106,7 +106,7 @@ namespace LuckyReport.Server.Controllers
             _context.Filters.Remove(filter);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         private bool FilterExists(int id)
