@@ -1,7 +1,8 @@
 ﻿@page "/reports"
 @inject NavigationManager Navigation
-
+@inject LuckyReportHelper LuckyReportHelper
 @using System.Text.Json
+@using LuckyReport.Helpers
 
 <Modal Title="@("BasicModal")"
        Visible="@_visible"
@@ -58,7 +59,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _reports = await LuckyReportHelper.SwaggerClient.ReportsAllAsync();
         _total = _reports.Count();
     }
     
@@ -74,8 +75,8 @@
 
     private async Task Delete(int id)
     {
-        await new swaggerClient("https://localhost:7103/", new HttpClient()).Reports4Async(id);
-        _reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        await LuckyReportHelper.SwaggerClient.Reports4Async(id);
+        _reports = await LuckyReportHelper.SwaggerClient.ReportsAllAsync();
         _total = _reports.Count();
     }
     #region original form coding
@@ -127,7 +128,7 @@
     private async Task OnFinish(EditContext editContext)
     {
         Toggle(false);
-        _reports = await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAllAsync();
+        _reports = await LuckyReportHelper.SwaggerClient.ReportsAllAsync();
         _total = _reports.Count();
         _visible = false;
     }
@@ -139,7 +140,7 @@
     private async Task HandleOk(MouseEventArgs e)
     {
         Toggle(true);
-        await new swaggerClient("https://localhost:7103/", new HttpClient()).ReportsAsync(_model);
+        await LuckyReportHelper.SwaggerClient.ReportsAsync(_model);
         _form.Submit();
     }
 }

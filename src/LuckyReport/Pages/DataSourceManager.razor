@@ -1,8 +1,9 @@
 ﻿@page "/datasourcs"
 @using System.Text.Json
-@using LuckyReport.Shared
+@using LuckyReport.Helpers
+@inject LuckyReportHelper LuckyReportHelper
 
-<Modal Title="@("BasicModal")"
+<Modal Title="@("Edit")"
        Visible="@_visible"
        OnOk="@HandleOk"
        OnCancel="@HandleCancel">
@@ -19,6 +20,110 @@
             <Input @bind-Value="@context.Uri" />
         </FormItem>
     </Form>
+</Modal>
+
+<Modal Title="@("Add Filter")"
+       Visible="@_addFilterVisible"
+       OnOk="@FilterHandleOk"
+       OnCancel="@FilterHandleCancel">
+    <Form Loading="_loading" Model="@_filter"
+          LabelColSpan="8"
+          WrapperColSpan="16"
+          OnFinish="FilterOnFinish"
+          OnFinishFailed="FilterOnFinishFailed"
+          @ref="@_filterForm">
+        <FormItem Label="Title">
+            <Input @bind-Value="@context.Title" />
+        </FormItem>
+        <FormItem Label="Field">
+            <Input @bind-Value="@context.Field" />
+        </FormItem>
+        <FormItem Label="Type">
+            <Select TItem="FieldType"
+                    TItemValue="FilterType"
+                    DataSource="@_list"
+                    @bind-Value="@context.Type"
+                    ValueName="@nameof(FieldType.Value)"
+                    LabelName="@nameof(FieldType.Name)"
+                    >
+            </Select>
+        </FormItem>
+    </Form>
+</Modal>
+
+<Modal Title="@("Filter")"
+       Width="800"
+       Visible="@_filterVisible"
+       OnOk="@HandleFilterOk"
+       OnCancel="@HandleFilterCancel">
+    <Button Type="@ButtonType.Primary" OnClick="@ShowAddFilterModal">
+        新建
+    </Button>
+    <Table DataSource="listOfData" TItem="Filter" RowClassName="@(_ => "editable-row")" Bordered TableLayout="fixed">
+        <ChildContent Context="data">
+            <AntDesign.Column TData="string" Title="Title">
+                @if (!editCache[data.Id].edit)
+                {
+                    @data.Title
+                }
+                else
+                {
+                    <Input @bind-Value="editCache[data.Id].data.Title"/>
+                }
+            </AntDesign.Column>
+            <AntDesign.Column TData="string" Title="Field">
+                @if (!editCache[data.Id].edit)
+                {
+                    @data.Field
+                }
+                else
+                {
+                    <Input @bind-Value="editCache[data.Id].data.Field"/>
+                }
+            </AntDesign.Column>
+            <AntDesign.Column TData="string" Title="Type">
+                @if (!editCache[data.Id].edit)
+                {
+                    @data.Type
+                }
+                else
+                {
+                    <Input @bind-Value="editCache[data.Id].data.Type"/>
+                }
+            </AntDesign.Column>
+            <ActionColumn Title="Action">
+                @if (!editCache[data.Id].edit)
+                {
+                    <a @onclick="() => StartEdit(data.Id)">Edit</a>
+                }
+                else
+                {
+                    <a @onclick="() => SaveEdit(data.Id)" class="save">Save</a>
+                    <Popconfirm Title="Sure to cancel?"
+                                OnConfirm="() => CancelEdit(data.Id)"
+                                OkText="Yes"
+                                CancelText="No">
+                        <a>Cancel</a>
+                    </Popconfirm>
+                }
+            
+                @if (!editCache[data.Id].edit)
+                {
+                    <a @onclick="() => StartEdit(data.Id)">Delete</a>
+                }
+                else
+                {
+                    <a @onclick="() => SaveEdit(data.Id)" class="save">Save</a>
+                    <Popconfirm Title="Sure to cancel?"
+                            OnConfirm="() => CancelEdit(data.Id)"
+                            OkText="Yes"
+                            CancelText="No">
+                        <a>Cancel</a>
+                    </Popconfirm>
+                }
+            </ActionColumn>
+        </ChildContent>
+    </Table>
 </Modal>
 
 <Card>
@@ -40,17 +145,34 @@
         <PropertyColumn  Property="c=>c.Uri" Sortable />
         <ActionColumn Width="240" Title="Action">
             <Space>
-                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">Edit</Button></SpaceItem>
+                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>EditFilter(context.Id)">Filter</Button></SpaceItem>
+                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="() => Edit(context.Id)">Edit</Button></SpaceItem>
                 <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
             </Space>
         </ActionColumn>
     </Table>
 </Card>
 
-
+<style>
+    .save {
+        margin-right: 8px;
+    }
+</style>
 
 @code {
+    class FieldType
+    {
+        public FilterType Value { get; set; }
+        public string Name { get; set; }
+    }
 
+    List<FieldType> _list = new()
+    {
+        new FieldType() { Value = FilterType._0, Name = "日期" },
+        new FieldType() { Value = FilterType._1, Name = "类别" },
+        new FieldType() { Value = FilterType._2, Name = "模糊" },
+    };
+    
     IEnumerable<DataSource> _dataSources;
     IEnumerable<DataSource> _selectedRows;
     ITable _table;
@@ -61,7 +183,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        _dataSources = await LuckyReportHelper.SwaggerClient.DataSourcesAllAsync();
         _total = _dataSources.Count();
     }
     
@@ -72,21 +194,30 @@
 
     private async Task Delete(int id)
     {
-        await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSources4Async(id);
-        _dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        await LuckyReportHelper.SwaggerClient.DataSources4Async(id);
+        _dataSources = await LuckyReportHelper.SwaggerClient.DataSourcesAllAsync();
         _total = _dataSources.Count();
     }
 
     #region original form coding
 
     private readonly DataSource _model = new ();
-
+    private readonly Filter _filter = new();
     private  void OnFinishFailed(EditContext editContext)
     {
         Toggle(false);
-        //dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        //dataSources = await LuckyReportHelper.SwaggerClient.DataSourcesAllAsync();
         //_total = dataSources.Count();
         //_visible = false;
+        Console.WriteLine($"Failed:{JsonSerializer.Serialize(_model)}");
+    }
+
+    private  void FilterOnFinishFailed(EditContext editContext)
+    {
+        Toggle(false);
+    //dataSources = await LuckyReportHelper.SwaggerClient.DataSourcesAllAsync();
+    //_total = dataSources.Count();
+    //_visible = false;
         Console.WriteLine($"Failed:{JsonSerializer.Serialize(_model)}");
     }
 
@@ -104,12 +235,30 @@
     {
         _visible = true;
     }
+    bool _addFilterVisible;
+    private void ShowAddFilterModal()
+    {
+        _addFilterVisible = true;
+    }
+    bool _filterVisible;
+
+    private void ShowFilterModal()
+    {
+        _filterVisible = true;
+    }
 
     private void HandleCancel(MouseEventArgs e)
     {
         Toggle(false);
         Console.WriteLine("e");
         _visible = false;
+    }
+
+    private void FilterHandleCancel(MouseEventArgs e)
+    {
+        Toggle(false);
+        Console.WriteLine("e");
+        _addFilterVisible = false;
     }
 
     #endregion
@@ -121,16 +270,28 @@
      */
 
     private Form<DataSource> _form;
-
+    private Form<Filter> _filterForm;
     /// <summary>
     /// when form is submited, close the modal
     /// </summary>
     private async Task OnFinish(EditContext editContext)
     {
         Toggle(false);
-        _dataSources = await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAllAsync();
+        _dataSources = await LuckyReportHelper.SwaggerClient.DataSourcesAllAsync();
         _total = _dataSources.Count();
         _visible = false;
+    }
+
+    private async Task FilterOnFinish(EditContext editContext)
+    {
+        Toggle(false);
+        listOfData = await LuckyReportHelper.SwaggerClient.FiltersAllAsync();
+        editCache.Clear();
+        listOfData.ForEach(item =>
+        {
+            editCache[item.Id] = (false, item);
+        });
+        _addFilterVisible = false;
     }
 
     /// <summary>
@@ -140,7 +301,74 @@
     private async Task HandleOk(MouseEventArgs e)
     {
         Toggle(true);
-        await new swaggerClient("https://localhost:7103/", new HttpClient()).DataSourcesAsync(_model);
+        await LuckyReportHelper.SwaggerClient.DataSourcesAsync(_model);
         _form.Submit();
     }
+
+    private async Task FilterHandleOk(MouseEventArgs e)
+    {
+        Toggle(true);
+        await LuckyReportHelper.SwaggerClient.FiltersAsync(_filter);
+        _filterForm.Submit();
+    }
+
+    #region filter
+
+    //record ItemData
+    //{
+    //    public string Id { get; set; }
+    //    public string Name { get; set; }
+    //    public int Age { get; set; }
+    //    public string Address { get; set; }
+    //};
+
+    IDictionary<int, (bool edit, Filter data)> editCache = new Dictionary<int, (bool edit, Filter data)>();
+    IEnumerable<Filter> listOfData ;
+
+    int i = 0;
+    string editId;
+    //bool _filterVisible;
+    private async Task HandleFilterOk(MouseEventArgs e)
+    {
+    }
+
+    private void HandleFilterCancel(MouseEventArgs e)
+    {
+        _filterVisible = false;
+    }
+    private void EditFilter(int id)
+    {
+        _filterVisible = true;
+    }
+    void StartEdit(int id)
+    {
+        var data = editCache[id];
+        editCache[id] = (true, data.data); // add a copy in cache
+    }
+
+    void CancelEdit(int id)
+    {
+        var data = listOfData.FirstOrDefault(item => item.Id == id);
+        editCache[id] = (false, data); // recovery
+    }
+
+    void SaveEdit(int id)
+    {
+        var index = listOfData.SingleOrDefault(item => item.Id == id);
+        index = editCache[id].data; // apply the copy to data source
+        editCache[id] = (false, index); // don't affect rows in editing
+    }
+
+    protected override async void OnInitialized()
+    {
+        listOfData = await LuckyReportHelper.SwaggerClient.FiltersAllAsync();
+        editCache.Clear();
+        listOfData.ForEach(item =>
+        {
+            editCache[item.Id] = (false, item);
+        });
+    }
+
+    #endregion
+    
 }

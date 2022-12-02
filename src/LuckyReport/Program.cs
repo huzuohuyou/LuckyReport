@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Append.Blazor.Printing;
+using LuckyReport.Helpers;
 
 namespace LuckyReport;
 
@@ -19,7 +20,8 @@ public class Program
         builder.Services.AddAntDesign();
         builder.Services.Configure<ProSettings>(builder.Configuration.GetSection("ProSettings"));
         builder.Services.AddScoped<IPrintingService, PrintingService>();
-        //builder.Services.HttpClientFactoryServiceCollectionExtensions.AddHttpClient();
+        builder.Services.AddHttpClient();
+        builder.Services.AddSingleton<LuckyReportHelper>();
         await builder.Build().RunAsync();
     }
 }

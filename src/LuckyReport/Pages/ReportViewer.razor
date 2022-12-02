@@ -1,10 +1,10 @@
 ﻿@page "/reports/{id:int}/view"
 @inject IJSRuntime Js
-@using LuckyReport.Shared
 @using Append.Blazor.Printing
-@using Append.Blazor.Printing
+@using LuckyReport.Helpers
+@using Filter = Microsoft.Office.Interop.Excel.Filter
 @inject IPrintingService PrintingService
-
+@inject LuckyReportHelper LuckyReportHelper
 <div>
     <Filter />
     <Button Type="@ButtonType.Primary" @onclick="Download">下载</Button>
@@ -24,7 +24,7 @@
     public bool Loaded = false;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        //var report = await new swaggerClient("https://localhost:7103/", new HttpClient()).GetAsync(id);
+        //var report = await LuckyReportHelper.SwaggerClient.GetAsync(id);
         if (firstRender)
         {
             await Js.InvokeVoidAsync("luckyLoad.viewDoc", Id);
@@ -39,7 +39,7 @@
     private async Task<bool> Download()
     {
         //var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
-        var url = await new swaggerClient("https://localhost:7103/", new HttpClient()).ExcelAsync(Id);
+        var url = await LuckyReportHelper.SwaggerClient.ExcelAsync(Id);
         var fileName = "report.xls";
         //Console.WriteLine(url);
         await Js.InvokeVoidAsync("triggerFileDownload", fileName, url);
