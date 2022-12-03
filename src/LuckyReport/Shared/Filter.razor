@@ -1,24 +1,25 @@
 ﻿@using LuckyReport.Helpers
 @inject LuckyReportHelper LuckyReportHelper
 <div>
-    @foreach (var item in filters)
+    @if (null != filters)
     {
-        switch (item.Type)
+        @foreach (var item in filters)
         {
-            case FilterType._0:
-                <DatePickerFilter Title="@item.Title" Field="@item.Field"></DatePickerFilter>
-                break;
-            case FilterType._1:
-                <SelectFilter Title="@item.Title" Field="@item.Field"></SelectFilter>
-                break;
-            case FilterType._2:
-                <InputFilter Title="@item.Title" Field="@item.Field"></InputFilter>
-                break;
-            default:
-                <InputFilter Title="@item.Title" Field="@item.Field"></InputFilter>
-                break;
+            switch (item.Type)
+            {
+                case FilterType._0:
+                    <DatePickerFilter Title="@item.Title" Field="@item.Field"></DatePickerFilter>
+                    break;
+                case FilterType._1:
+                    <SelectFilter Title="@item.Title" Field="@item.Field"></SelectFilter>
+                    break;
+                case FilterType._2:
+                    <InputFilter Title="@item.Title" Field="@item.Field"></InputFilter>
+                    break;
+            }
         }
     }
+    
     <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Search">Search</Button>
     <Button>重置</Button>
 </div>
