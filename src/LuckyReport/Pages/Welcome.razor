@@ -13,9 +13,75 @@
     }
 }
 <Card>
-    <Button Type="@ButtonType.Primary" OnClick="Todo">Load</Button>
-    <Button Type="@ButtonType.Primary" OnClick="Save">Save</Button>
+    <h1>Welcome to LuckyReport</h1>
+    <p>
+        Excel演示报表编辑器
+    </p>
+    <p>
+        Get API数据源绑定
+    </p>
+    <p>
+        动态数据元过滤
+    </p>
 </Card>
-<Card Style="height: 700px">
-    <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
-</Card>
+<GridRow Gutter="16" Style="margin-top: 10px;">
+    <GridCol Class="gutter-row" Span="6">
+        <Card Style="height: 120px;">
+            <h2>报表数</h2>
+            <Space>
+                <SpaceItem>
+                    <Icon Type="file" Theme="outline" />
+                </SpaceItem>
+                <SpaceItem>
+                    <h1>23</h1>
+                </SpaceItem>
+            </Space>
+        </Card>
+    </GridCol>
+    <GridCol Class="gutter-row" Span="6">
+        <Card Style="height: 120px;">
+            <h2>报表数</h2>
+            <Space>
+                <SpaceItem>
+                    <Icon Type="file" Theme="outline" />
+                </SpaceItem>
+                <SpaceItem>
+                    <h1>23</h1>
+                </SpaceItem>
+            </Space>
+        </Card>
+    </GridCol>
+    <GridCol Class="gutter-row" Span="6">
+        <Card Style="height: 120px;">
+            <h2>报表数</h2>
+            <Space>
+                <SpaceItem>
+                    <Icon Type="file" Theme="outline" />
+                </SpaceItem>
+                <SpaceItem>
+                    <h1>23</h1>
+                </SpaceItem>
+            </Space>
+        </Card>
+    </GridCol>
+    <GridCol Class="gutter-row" Span="6">
+        <Card Style="height: 120px;">
+            <h2>报表数</h2>
+            <Space>
+                <SpaceItem>
+                    <Icon Type="file" Theme="outline" />
+                </SpaceItem>
+                <SpaceItem>
+                    <h1>23</h1>
+                </SpaceItem>
+            </Space>
+        </Card>
+    </GridCol>
+</GridRow>
+
+<style>
+    .gutter-box {
+        padding: 8px 0;
+        background: #00a0e9;
+    }
+</style>

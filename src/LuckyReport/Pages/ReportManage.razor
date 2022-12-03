@@ -22,34 +22,41 @@
         </FormItem>
     </Form>
 </Modal>
+<Space Style="width: 100%" Direction="DirectionVHType.Vertical">
+    <SpaceItem>
+        <Card >
+            <Button Type="@ButtonType.Primary" OnClick="@ShowModal">
+                新建
+            </Button>
+        </Card>
+    </SpaceItem>
+    <SpaceItem>
+        <Card Style="height: 700px">
+            <Table @ref="_table"
+                   TItem="Report"
+                   DataSource="@_reports"
+                   Total="_total"
+                   @bind-PageIndex="_pageIndex"
+                   @bind-PageSize="_pageSize"
+                   @bind-SelectedRows="_selectedRows"
+            >
+                <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
+                <PropertyColumn   Property="c=>c.Title" Sortable />
+                <PropertyColumn Property="c=>c.DataSourceId" Sortable />
+                <ActionColumn Width="240"  Title="Action">
+                    <Space>
+                        <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Design(context.Id)">  Design  </Button></SpaceItem>
+                        <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>Design(context.Id)">  Edit  </Button></SpaceItem>
+                        <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>View(context.Id)">  View  </Button></SpaceItem>
+                        <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
+                    </Space>
+                </ActionColumn>
+            </Table>
+        </Card>
+    </SpaceItem>
+</Space>
 
-<Card>
-    <Button Type="@ButtonType.Primary" OnClick="@ShowModal">
-        新建
-    </Button>
-</Card>
-<Card Style="height: 700px">
-    <Table @ref="_table"
-           TItem="Report"
-           DataSource="@_reports"
-           Total="_total"
-           @bind-PageIndex="_pageIndex"
-           @bind-PageSize="_pageSize"
-           @bind-SelectedRows="_selectedRows"
-    >
-        <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
-        <PropertyColumn   Property="c=>c.Title" Sortable />
-        <PropertyColumn Property="c=>c.DataSourceId" Sortable />
-        <ActionColumn Width="240"  Title="Action">
-            <Space>
-                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Design(context.Id)">  Design  </Button></SpaceItem>
-                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>Design(context.Id)">  Edit  </Button></SpaceItem>
-                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>View(context.Id)">  View  </Button></SpaceItem>
-                <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
-            </Space>
-        </ActionColumn>
-    </Table>
-</Card>
+
 
 
 @code {

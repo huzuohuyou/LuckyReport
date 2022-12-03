@@ -128,32 +128,41 @@
     </Table>
 </Modal>
 
-<Card>
-    <Button Type="@ButtonType.Primary" OnClick="@ShowModal">
-        新建
-    </Button>
-</Card>
-<Card Style="height: 700px">
-    <Table @ref="_table"
-           TItem="DataSource"
-           DataSource="@_dataSources"
-           Total="_total"
-           @bind-PageIndex="_pageIndex"
-           @bind-PageSize="_pageSize"
-           @bind-SelectedRows="_selectedRows"
-    >
-        <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
-        <PropertyColumn Width="200" Property="c=>c.Name" Sortable />
-        <PropertyColumn  Property="c=>c.Uri" Sortable />
-        <ActionColumn Width="240" Title="Action">
-            <Space>
-                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>ManageFilters(context.Id)">Filter</Button></SpaceItem>
-                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="() => Edit(context.Id)">Edit</Button></SpaceItem>
-                <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
-            </Space>
-        </ActionColumn>
-    </Table>
-</Card>
+<Space Style="width: 100%" Direction="DirectionVHType.Vertical">
+<SpaceItem>
+    <Card>
+        <Button Type="@ButtonType.Primary" OnClick="@ShowModal">
+            新建
+        </Button>
+    </Card>
+</SpaceItem>
+<SpaceItem>
+    <Card Style="height: 700px">
+        <Table @ref="_table"
+               TItem="DataSource"
+               DataSource="@_dataSources"
+               Total="_total"
+               @bind-PageIndex="_pageIndex"
+               @bind-PageSize="_pageSize"
+               @bind-SelectedRows="_selectedRows"
+        >
+            <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
+            <PropertyColumn Width="200" Property="c=>c.Name" Sortable />
+            <PropertyColumn  Property="c=>c.Uri" Sortable />
+            <ActionColumn Width="240" Title="Action">
+                <Space>
+                    <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>ManageFilters(context.Id)">Filter</Button></SpaceItem>
+                    <SpaceItem><Button Type="@ButtonType.Primary" OnClick="() => Edit(context.Id)">Edit</Button></SpaceItem>
+                    <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
+                </Space>
+            </ActionColumn>
+        </Table>
+    </Card>
+
+</SpaceItem>
+</Space>
+
+
 
 <style>
     .save {
