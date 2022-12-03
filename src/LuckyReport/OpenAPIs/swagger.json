@@ -89,6 +89,57 @@
         }
       }
     },
+    "/api/DataSources/{id}/Filters": {
+      "get": {
+        "tags": [
+          "DataSources"
+        ],
+        "operationId": "GetDataSourceFilters",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Filter"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Filter"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Filter"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/DataSources/{id}": {
       "get": {
         "tags": [
@@ -697,9 +748,6 @@
           "dataSourceId": {
             "type": "integer",
             "format": "int32"
-          },
-          "dataSource": {
-            "$ref": "#/components/schemas/DataSource"
           }
         },
         "additionalProperties": false
@@ -727,6 +775,10 @@
           "doc": {
             "type": "string",
             "nullable": true
+          },
+          "dataSourceId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false

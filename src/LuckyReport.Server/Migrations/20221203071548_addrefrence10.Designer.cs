@@ -2,6 +2,7 @@
 using LuckyReport.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LuckyReport.Server.Migrations
 {
     [DbContext(typeof(LuckyReportContext))]
-    partial class LuckyReportContextModelSnapshot : ModelSnapshot
+    [Migration("20221203071548_addrefrence10")]
+    partial class addrefrence10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.0");
@@ -69,8 +72,9 @@ namespace LuckyReport.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("DataSourceId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("DataSourceId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Doc")
                         .IsRequired()

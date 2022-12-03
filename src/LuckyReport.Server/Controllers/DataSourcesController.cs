@@ -24,6 +24,13 @@ public class DataSourcesController : ControllerBase
         return result;
     }
 
+    [HttpGet("{id}/Filters",Name = nameof(GetDataSourceFilters))]
+    public async Task<ActionResult<IEnumerable<Filter>>> GetDataSourceFilters([FromRoute]int id)
+    {
+        return  await _context.Filters!.Where(r=>r.DataSourceId==id).ToListAsync();
+    }
+
+
     // GET: api/DataSources/5
     [HttpGet("{id}")]
     public async Task<ActionResult<DataSource>> GetDataSource(int id)

@@ -1,0 +1,58 @@
+﻿@using LuckyReport.Helpers
+@inject LuckyReportHelper LuckyReportHelper
+<div>
+    @Title <Select TItem="Person"
+                   TItemValue="string"
+                   DataSource="@_list"
+                   @bind-Value="@_selectedValue1"
+                   DefaultValue="@("lucy")"
+                   ValueName="@nameof(Person.Value)"
+                   LabelName="@nameof(Person.Name)"
+                   DisabledName="@nameof(Person.IsDisabled)"
+                   Style="width:120px"
+                   OnSelectedItemChanged="OnSelectedItemChangedHandler">
+    </Select>
+</div>
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Title";
+    [Parameter]
+    public string Field { get; set; } = "Field";
+    string Value { get; set; }
+
+    private IEnumerable<LuckyReport.Filter> filters;
+    List<Person> _list;
+    List<string> _personNames;
+    string _selectedValue1, _selectedValue2, _selectedValue3;
+    string _selectedValue4 = "lucy";
+    string _selectedValue5 = "Lucy";
+    class Person
+    {
+        public string Value { get; set; }
+        public string Name { get; set; }
+        public bool IsDisabled { get; set; }
+    }
+
+    protected override void OnInitialized()
+    {
+        _list = new List<Person>
+        {
+            new Person {Value = "jack", Name = "Jack"},
+            new Person {Value = "lucy", Name = "Lucy"},
+            new Person {Value = "disabled", Name = "Disabled", IsDisabled = true},
+            new Person {Value = "yaoming", Name = "YaoMing"}
+        };
+        _personNames = new List<string> { "Jack", "Lucy", "YaoMing" };
+    }
+
+    private void OnSelectedItemChangedHandler(Person value)
+    {
+        Console.WriteLine($"selected: ${value?.Name}");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        //var report = await LuckyReportHelper.SwaggerClient.Reports2Async(ReportId);
+        // filters = await LuckyReportHelper.SwaggerClient.GetDataSourceFiltersAsync(report.DataSourceId);
+    }
+
+}

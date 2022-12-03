@@ -17,7 +17,9 @@
         <FormItem Label="Name">
             <Input @bind-Value="@context.Title" />
         </FormItem>
-        
+        <FormItem Label="DataSourceId">
+            <Input @bind-Value="@context.DataSourceId" />
+        </FormItem>
     </Form>
 </Modal>
 
@@ -37,9 +39,11 @@
     >
         <PropertyColumn Width="100" Property="c=>c.Id" Sortable />
         <PropertyColumn   Property="c=>c.Title" Sortable />
+        <PropertyColumn Property="c=>c.DataSourceId" Sortable />
         <ActionColumn Width="240"  Title="Action">
             <Space>
-                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Edit(context.Id)">  Edit  </Button></SpaceItem>
+                <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>Design(context.Id)">  Design  </Button></SpaceItem>
+                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>Design(context.Id)">  Edit  </Button></SpaceItem>
                 <SpaceItem><Button  Type="@ButtonType.Primary" OnClick="()=>View(context.Id)">  View  </Button></SpaceItem>
                 <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
             </Space>
@@ -63,7 +67,7 @@
         _total = _reports.Count();
     }
     
-    private void Edit(int id)
+    private void Design(int id)
     {
         Navigation.NavigateTo($@"reports/{id}");
     }
