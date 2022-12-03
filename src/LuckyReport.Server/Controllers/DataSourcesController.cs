@@ -20,7 +20,8 @@ public class DataSourcesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DataSource>>> GetDataSources()
     {
-        return await _context.DataSources!.ToListAsync();
+        var result = await _context.DataSources!.ToListAsync();
+        return result;
     }
 
     // GET: api/DataSources/5

@@ -2,16 +2,19 @@
 using LuckyReport.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EFGetStarted.Migrations
+namespace LuckyReport.Server.Migrations
 {
     [DbContext(typeof(LuckyReportContext))]
-    partial class BloggingContextModelSnapshot : ModelSnapshot
+    [Migration("20221203061249_addrefrence")]
+    partial class addrefrence
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.0");
@@ -39,8 +42,11 @@ namespace EFGetStarted.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("DataSource")
+                    b.Property<string>("Content")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("DataSourceId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Field")
                         .IsRequired()
@@ -54,6 +60,8 @@ namespace EFGetStarted.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DataSourceId");
 
                     b.ToTable("Filters");
                 });
@@ -74,6 +82,20 @@ namespace EFGetStarted.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Reports");
+                });
+
+            modelBuilder.Entity("LuckyReport.Server.Models.Filter", b =>
+                {
+                    b.HasOne("LuckyReport.Server.Models.DataSource", null)
+                        .WithMany("Filters")
+                        .HasForeignKey("DataSourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("LuckyReport.Server.Models.DataSource", b =>
+                {
+                    b.Navigation("Filters");
                 });
 #pragma warning restore 612, 618
         }

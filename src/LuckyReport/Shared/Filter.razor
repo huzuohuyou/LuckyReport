@@ -1,5 +1,12 @@
-﻿<h1 style="font-style:@_headingFontStyle">Heading Example</h1>
+﻿@using LuckyReport.Helpers
+@inject LuckyReportHelper LuckyReportHelper
+<h1 style="font-style:@_headingFontStyle">Heading Example</h1>
 
 @code {
     private string _headingFontStyle = "italic";
+    protected override async Task OnInitializedAsync()
+    {
+        var filters= LuckyReportHelper.SwaggerClient.FiltersAllAsync();
+    }
+
 }

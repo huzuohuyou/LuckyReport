@@ -1,12 +1,13 @@
-﻿namespace LuckyReport.Server.Models;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace LuckyReport.Server.Models;
 
 public class DataSource
 {
     public int Id { get; set; }
     public string? Name { get; set; }
     public string? Uri { get; set; }
-    //public string[]? Params { get; set; }
-    
+    public List<Filter> Filters { get; set; }
     public override string? ToString()
     {
         return Uri;

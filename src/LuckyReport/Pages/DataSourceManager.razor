@@ -32,11 +32,14 @@
           OnFinish="FilterOnFinish"
           OnFinishFailed="FilterOnFinishFailed"
           @ref="@_filterForm">
+        <FormItem Label="DataSourceId">
+            <Input @bind-Value="@context.DataSourceId" />
+        </FormItem>
         <FormItem Label="Title">
-            <Input @bind-Value="@context.Title" />
+            <Input @bind-Value="@context.Title"/>
         </FormItem>
         <FormItem Label="Field">
-            <Input @bind-Value="@context.Field" />
+            <Input @bind-Value="@context.Field"/>
         </FormItem>
         <FormItem Label="Type">
             <Select TItem="FieldType"
@@ -44,8 +47,7 @@
                     DataSource="@_list"
                     @bind-Value="@context.Type"
                     ValueName="@nameof(FieldType.Value)"
-                    LabelName="@nameof(FieldType.Name)"
-                    >
+                    LabelName="@nameof(FieldType.Name)">
             </Select>
         </FormItem>
     </Form>
@@ -145,7 +147,7 @@
         <PropertyColumn  Property="c=>c.Uri" Sortable />
         <ActionColumn Width="240" Title="Action">
             <Space>
-                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>EditFilter(context.Id)">Filter</Button></SpaceItem>
+                <SpaceItem><Button Type="@ButtonType.Primary" OnClick="()=>ManageFilters(context.Id)">Filter</Button></SpaceItem>
                 <SpaceItem><Button Type="@ButtonType.Primary" OnClick="() => Edit(context.Id)">Edit</Button></SpaceItem>
                 <SpaceItem><Button Danger OnClick="() => Delete(context.Id)">Delete</Button></SpaceItem>
             </Space>
@@ -336,8 +338,15 @@
     {
         _filterVisible = false;
     }
-    private void EditFilter(int id)
+    private async  Task ManageFilters(int id)
     {
+        _filter.DataSourceId = id;
+        listOfData = await LuckyReportHelper.SwaggerClient.FiltersAllAsync();
+        editCache.Clear();
+        listOfData.ForEach(item =>
+        {
+            editCache[item.Id] = (false, item);
+        });
         _filterVisible = true;
     }
     void StartEdit(int id)
@@ -368,12 +377,12 @@
 
     protected override async void OnInitialized()
     {
-        listOfData = await LuckyReportHelper.SwaggerClient.FiltersAllAsync();
-        editCache.Clear();
-        listOfData.ForEach(item =>
-        {
-            editCache[item.Id] = (false, item);
-        });
+        //listOfData = await LuckyReportHelper.SwaggerClient.FiltersAllAsync();
+        //editCache.Clear();
+        //listOfData.ForEach(item =>
+        //{
+        //    editCache[item.Id] = (false, item);
+        //});
     }
 
     #endregion

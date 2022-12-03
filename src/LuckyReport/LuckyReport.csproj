@@ -1,19 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net6</TargetFramework>
-    <RazorLangVersion>3.0</RazorLangVersion>
-    <Platforms>x64</Platforms>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6</TargetFramework>
+		<RazorLangVersion>3.0</RazorLangVersion>
+		<Platforms>x64</Platforms>
+		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+	</PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <OpenApiReference Include="OpenAPIs\swagger.json" CodeGenerator="NSwagCSharp">
       <SourceUri>https://localhost:7103/swagger/v1/swagger.json</SourceUri>
     </OpenApiReference>
   </ItemGroup>
-
-
-  
 
   <ItemGroup>
     <PackageReference Include="AntDesign.Charts" Version="0.2.3" />
@@ -41,12 +39,10 @@
   </ItemGroup>
 
 
-  
 
-  <ItemGroup>
-    <None Update="docs\demo6.pdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+
+	<ItemGroup>
+		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+	</ItemGroup>
 
 </Project>

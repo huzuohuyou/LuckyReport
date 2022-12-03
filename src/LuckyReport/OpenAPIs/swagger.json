@@ -661,6 +661,13 @@
           "uri": {
             "type": "string",
             "nullable": true
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Filter"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -683,9 +690,16 @@
           "type": {
             "$ref": "#/components/schemas/FilterType"
           },
-          "dataSource": {
+          "content": {
             "type": "string",
             "nullable": true
+          },
+          "dataSourceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataSource": {
+            "$ref": "#/components/schemas/DataSource"
           }
         },
         "additionalProperties": false

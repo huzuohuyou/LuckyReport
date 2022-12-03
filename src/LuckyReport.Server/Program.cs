@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<Report>();
-builder.Services.AddSingleton<LuckyReportContext>();
+builder.Services.AddTransient<LuckyReportContext>();
 builder.Services.AddSingleton<DataSourceHelper>();
 //¾²Ì¬ÎÄ¼þÄ¿Â¼ä¯ÀÀ
 builder.Services.AddDirectoryBrowser();
