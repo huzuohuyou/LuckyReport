@@ -1,8 +1,13 @@
 ﻿@using LuckyReport.Helpers
 @inject LuckyReportHelper LuckyReportHelper
-<div>
-    @Title <Input Placeholder="Basic usage" @bind-Value="@Value" />
-</div>
+<GridCol Span="8">
+    <FormItem Label="@Title" >
+        <Input Placeholder="Basic usage" @bind-Value="@Value" />
+    </FormItem>
+</GridCol>
+
+
+
 @code {
     [Parameter]
     public string Title { get; set; } = "Title";

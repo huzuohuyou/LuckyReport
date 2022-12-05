@@ -1,15 +1,19 @@
 ﻿@using LuckyReport.Helpers
 @inject LuckyReportHelper LuckyReportHelper
-<div>
-    @Title <RangePicker TValue="DateTime?[]" />
-</div>
+
+<GridCol Span="8" >
+    <FormItem Label="@Title">
+        <RangePicker TValue="DateTime?[]" @bind-Value="RangePicker" />
+    </FormItem>
+</GridCol>
+
 @code {
     [Parameter]
     public string Title { get; set; } = "Title";
     [Parameter]
     public string Field { get; set; } = "Field";
     string Value { get; set; }
-
+    public DateTime?[] RangePicker { get; set; } = new DateTime?[] { DateTime.Now, DateTime.Now.AddDays(10) };
     private IEnumerable<LuckyReport.Filter> filters;
     protected override async Task OnInitializedAsync()
     {

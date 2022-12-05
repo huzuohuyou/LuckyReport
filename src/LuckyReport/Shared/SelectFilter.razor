@@ -1,18 +1,23 @@
 ﻿@using LuckyReport.Helpers
 @inject LuckyReportHelper LuckyReportHelper
-<div>
-    @Title <Select TItem="Person"
-                   TItemValue="string"
-                   DataSource="@_list"
-                   @bind-Value="@_selectedValue1"
-                   DefaultValue="@("lucy")"
-                   ValueName="@nameof(Person.Value)"
-                   LabelName="@nameof(Person.Name)"
-                   DisabledName="@nameof(Person.IsDisabled)"
-                   Style="width:120px"
-                   OnSelectedItemChanged="OnSelectedItemChangedHandler">
-    </Select>
-</div>
+
+<GridCol Span="8">
+    <FormItem Label="@Title">
+        <Select TItem="Person"
+                TItemValue="string"
+                DataSource="@_list"
+                @bind-Value="@_selectedValue1"
+                DefaultValue="@("lucy")"
+                ValueName="@nameof(Person.Value)"
+                LabelName="@nameof(Person.Name)"
+                DisabledName="@nameof(Person.IsDisabled)"
+                OnSelectedItemChanged="OnSelectedItemChangedHandler">
+        </Select>
+    </FormItem>
+</GridCol>
+
+
+
 @code {
     [Parameter]
     public string Title { get; set; } = "Title";
