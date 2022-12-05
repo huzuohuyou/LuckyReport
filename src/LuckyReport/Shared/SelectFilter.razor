@@ -3,16 +3,20 @@
 
 <GridCol Span="8">
     <FormItem Label="@Title">
-        <Select TItem="Person"
-                TItemValue="string"
-                DataSource="@_list"
-                @bind-Value="@_selectedValue1"
-                DefaultValue="@("lucy")"
-                ValueName="@nameof(Person.Value)"
-                LabelName="@nameof(Person.Name)"
-                DisabledName="@nameof(Person.IsDisabled)"
-                OnSelectedItemChanged="OnSelectedItemChangedHandler">
-        </Select>
+        <div style="max-width: 326px">
+
+            <Select TItem="Person"
+                    TItemValue="string"
+                    DataSource="@_list"
+                    @bind-Value="@_selectedValue1"
+                    DefaultValue="@("lucy")"
+                    ValueName="@nameof(Person.Value)"
+                    LabelName="@nameof(Person.Name)"
+                    DisabledName="@nameof(Person.IsDisabled)"
+                    OnSelectedItemChanged="OnSelectedItemChangedHandler">
+            </Select>
+        </div>
+        
     </FormItem>
 </GridCol>
 
