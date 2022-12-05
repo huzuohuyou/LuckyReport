@@ -432,6 +432,57 @@
         }
       }
     },
+    "/api/Filters/Caches/{requestId}": {
+      "post": {
+        "tags": [
+          "Filters"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Filter"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Filter"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Filter"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/reports/{id}/view": {
       "post": {
         "tags": [
@@ -743,6 +794,23 @@
           },
           "content": {
             "type": "string",
+            "nullable": true
+          },
+          "rangePickerValue": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "nullable": true
+          },
+          "inputValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "selectValue": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "dataSourceId": {

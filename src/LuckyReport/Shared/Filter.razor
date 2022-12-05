@@ -2,82 +2,61 @@
 @inject LuckyReportHelper LuckyReportHelper
 @inject IJSRuntime Js
 @using System.Text.Json;
-    @if (null != filters)
-    {
-        <Form @ref="_form" Model="formData" Name="advanced_search" Class="ant-advanced-search-form">
-            <Row Gutter="24">
-                @foreach (var item in filters)
+@if (null != _filters)
+{
+    <Form @ref="_form" Model="formData" Name="advanced_search" >
+        <Row Gutter="24">
+            @foreach (var item in _filters)
+            {
+                switch (item.Type)
                 {
-                    switch (item.Type)
-                    {
-                        case FilterType._0:
-                            <DatePickerFilter Title="@item.Title" Field="@item.Field"></DatePickerFilter>
-                            break;
-                        case FilterType._1:
-                            <SelectFilter Title="@item.Title" Field="@item.Field"></SelectFilter>
-                            break;
-                        case FilterType._2:
-                            <InputFilter Title="@item.Title" Field="@item.Field"></InputFilter>
-                            break;
-                    }
+                    case FilterType._0:
+                        <DatePickerFilter Parent="item" ></DatePickerFilter>
+                        break;
+                    case FilterType._1:
+                        <SelectFilter Title="@item.Title" Field="@item.Field"></SelectFilter>
+                        break;
+                    case FilterType._2:
+                        <InputFilter Title="@item.Title" Field="@item.Field"></InputFilter>
+                        break;
                 }
-            </Row>
-            <Row>
-                <GridCol Span="24" Style="text-align:right;">
-                    <Button Type="primary" HtmlType="submit">Search</Button>
-                    <Button Style="margin: 0 8px;" OnClick="()=>{_form?.Reset();}">Clear</Button>
-                    <Button Type="@ButtonType.Primary" @onclick="Download">下载</Button>
-                    <Button Type="@ButtonType.Primary" @onclick="Print">打印</Button>
-                </GridCol>
-            </Row>
-        </Form>
-    }
-@*<style>
-    [data-theme='compact'] .ant-advanced-search-form,
-    .ant-advanced-search-form {
-        padding: 24px;
-        background: #fbfbfb;
-        border: 1px solid #d9d9d9;
-        border-radius: 2px;
-    }
+            }
+        </Row>
+        <Row>
+            <GridCol Span="24" Style="text-align:right;">
+                <Button Type="@ButtonType.Primary" HtmlType="submit" OnClick="Search">  Search</Button>
+                <Button Style="margin: 0 8px;" OnClick="()=>{_form?.Reset();}">Clear</Button>
+                <Button Type="@ButtonType.Primary" @onclick="Download">下载</Button>
+                <Button Type="@ButtonType.Primary" @onclick="Print">打印</Button>
+            </GridCol>
+        </Row>
+    </Form>
+}
 
-    [data-theme='compact'] .ant-advanced-search-form .ant-form-item,
-    .ant-advanced-search-form .ant-form-item {
-        display: flex;
-    }
 
-    [data-theme='compact'] .ant-advanced-search-form .ant-form-item-control-wrapper,
-    .ant-advanced-search-form .ant-form-item-control-wrapper {
-        flex: 1;
-    }
-</style>  *@ 
-    
 @code {
-    //[Parameter]
-    //public int Id { get; set; }
     [Parameter]
     public string Title { get; set; } = "Set By Child";
     private string _headingFontStyle = "italic";
     [Parameter]
     public int ReportId { get; set; }
 
-    private IEnumerable<LuckyReport.Filter> filters;
-    //protected override async Task OnInitializedAsync()
-    //{
-    //    var report = await LuckyReportHelper.SwaggerClient.Reports2Async(ReportId);
-    //     filters = await LuckyReportHelper.SwaggerClient.GetDataSourceFiltersAsync(report.DataSourceId);
-    //}
+    
+    private IEnumerable<LuckyReport.Filter> _filters;
 
     protected override async Task OnParametersSetAsync()
     {
         var report = await LuckyReportHelper.SwaggerClient.Reports2Async(ReportId);
-        filters = await LuckyReportHelper.SwaggerClient.GetDataSourceFiltersAsync(report.DataSourceId);
+        _filters = await LuckyReportHelper.SwaggerClient.GetDataSourceFiltersAsync(report.DataSourceId);
     }
 
     bool _expand = false;
     AntDesign.Internal.IForm _form;
     Dictionary<string, FormValue> formData = new();
-
+    private void MyEvent(DateTime?[] value)
+    {
+        Console.WriteLine("Got the ChildEvents");
+    }
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -87,7 +66,12 @@
             formData.Add($"field-{i}", new FormValue());
         }
     }
-
+    private async Task Search()
+    {
+        var id = Guid.NewGuid().ToString();
+        await LuckyReportHelper.SwaggerClient.CachesAsync(id, _filters);
+        await Js.InvokeAsync<string>("luckyLoad.printDoc");
+    }
     class FormValue
     {
         public string Value { get; set; }
@@ -99,10 +83,10 @@
     }
     private async Task<bool> Download()
     {
-    //var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
+        //var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
         var url = await LuckyReportHelper.SwaggerClient.ExcelAsync(ReportId);
         var fileName = "report.xls";
-    //Console.WriteLine(url);
+        //Console.WriteLine(url);
         await Js.InvokeVoidAsync("triggerFileDownload", fileName, url);
         return true;
     }

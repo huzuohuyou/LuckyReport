@@ -2,23 +2,23 @@
 @inject LuckyReportHelper LuckyReportHelper
 
 <GridCol Span="8" >
-    <FormItem Label="@Title">
-        <RangePicker style="width: 100%;" TValue="DateTime?[]" @bind-Value="RangePicker" />
+    <FormItem Label="@Parent.Title">
+        <RangePicker style="width: 100%;" TValue="DateTime?[]" @bind-Value="@Value" OnChange="OnTimeRangeChange" />
     </FormItem>
 </GridCol>
 
 @code {
     [Parameter]
-    public string Title { get; set; } = "Title";
+    public LuckyReport.Filter Parent { get; set; }
     [Parameter]
-    public string Field { get; set; } = "Field";
-    string Value { get; set; }
-    public DateTime?[] RangePicker { get; set; } = new DateTime?[] { DateTime.Now, DateTime.Now.AddDays(10) };
-    private IEnumerable<LuckyReport.Filter> filters;
-    protected override async Task OnInitializedAsync()
-    {
-        //var report = await LuckyReportHelper.SwaggerClient.Reports2Async(ReportId);
-        // filters = await LuckyReportHelper.SwaggerClient.GetDataSourceFiltersAsync(report.DataSourceId);
-    }
+    public DateTime?[] Value { get; set; } = new DateTime?[] { DateTime.Now, DateTime.Now.AddDays(10) };
+    [Parameter]
+    public EventCallback<DateTime?[]> ChildEvents { get; set; }
 
+    private  void OnTimeRangeChange(DateRangeChangedEventArgs args)
+    {
+        DateTimeOffset v1 = args.Dates![0]!.Value;
+        DateTimeOffset v2 = args.Dates![1]!.Value;
+        Parent.RangePickerValue = new List<DateTimeOffset>() { v1,v2};
+    }
 }

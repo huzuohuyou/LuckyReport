@@ -1,5 +1,6 @@
 ﻿using LuckyReport.Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LuckyReport.Server.Controllers
 {
@@ -8,10 +9,11 @@ namespace LuckyReport.Server.Controllers
     public class FiltersController : ControllerBase
     {
         private readonly LuckyReportContext _context;
-
-        public FiltersController(LuckyReportContext context)
+        private readonly IMemoryCache _memoryCache;
+        public FiltersController(LuckyReportContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _memoryCache = memoryCache;
         }
 
         // GET: api/Filters
@@ -87,6 +89,24 @@ namespace LuckyReport.Server.Controllers
             await _context.SaveChangesAsync();
             return Ok();
             //return CreatedAtAction("GetFilter", new { id = filter.Id }, filter);
+        }
+
+        /// <summary>
+        /// 缓存过滤条件
+        /// </summary>
+        /// <param name="requestId"></param>
+        /// <param name="filters"></param>
+        /// <returns></returns>
+        [HttpPost("Caches/{requestId}")]
+        public IActionResult CacheFilter([FromRoute] string requestId, [FromBody] List<Filter> filters)
+        {
+            if (!_memoryCache.TryGetValue(requestId, out List<Filter>? cacheValue))
+            {
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30));
+                _memoryCache.Set(requestId, cacheValue, cacheEntryOptions);
+            }
+            return Ok();
         }
 
         // DELETE: api/Filters/5

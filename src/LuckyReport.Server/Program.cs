@@ -1,5 +1,6 @@
 using LuckyReport.Server.Helper;
 using LuckyReport.Server.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddCors(options =>
             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
         });
 });
+builder.Services.AddSingleton<IMemoryCache, MemoryCache>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<Report>();
 builder.Services.AddTransient<LuckyReportContext>();

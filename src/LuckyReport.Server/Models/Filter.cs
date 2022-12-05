@@ -1,4 +1,8 @@
-﻿namespace LuckyReport.Server.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Build.Framework;
+
+namespace LuckyReport.Server.Models;
 
 public class Filter
 {
@@ -8,19 +12,15 @@ public class Filter
     public FilterType Type { get; set; }
     public string? Content { get; set; }
 
+    [NotMapped]
+    public DateTime?[]? RangePickerValue { get; set; }
+
+    [NotMapped]
+    public string? InputValue { get; set; }
+
+    [NotMapped]
+    public int? SelectValue { get; set; }
     public int DataSourceId { get; set; }
-    //public DataSource DataSource { get; set; }
-
-    public Filter()
-    {
-    }
-
-    public Filter(string title, string field, FilterType type)
-    {
-        Title = title;
-        Field = field;
-        Type = type;
-    }
 
 }
 
