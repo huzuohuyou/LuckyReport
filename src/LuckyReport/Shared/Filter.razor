@@ -1,5 +1,6 @@
 ﻿@using LuckyReport.Helpers
 @inject LuckyReportHelper LuckyReportHelper
+@inject IJSRuntime Js
 @using System.Text.Json;
     @if (null != filters)
     {
@@ -25,7 +26,8 @@
                 <GridCol Span="24" Style="text-align:right;">
                     <Button Type="primary" HtmlType="submit">Search</Button>
                     <Button Style="margin: 0 8px;" OnClick="()=>{_form?.Reset();}">Clear</Button>
-                    
+                    <Button Type="@ButtonType.Primary" @onclick="Download">下载</Button>
+                    <Button Type="@ButtonType.Primary" @onclick="Print">打印</Button>
                 </GridCol>
             </Row>
         </Form>
@@ -51,6 +53,8 @@
 </style>  *@ 
     
 @code {
+    //[Parameter]
+    //public int Id { get; set; }
     [Parameter]
     public string Title { get; set; } = "Set By Child";
     private string _headingFontStyle = "italic";
@@ -88,5 +92,18 @@
     {
         public string Value { get; set; }
     }
-
+    private async Task<bool> Print()
+    {
+        await Js.InvokeAsync<string>("luckyLoad.printDoc");
+        return true;
+    }
+    private async Task<bool> Download()
+    {
+    //var doc = await Js.InvokeAsync<string>("luckyLoad.getDoc");
+        var url = await LuckyReportHelper.SwaggerClient.ExcelAsync(ReportId);
+        var fileName = "report.xls";
+    //Console.WriteLine(url);
+        await Js.InvokeVoidAsync("triggerFileDownload", fileName, url);
+        return true;
+    }
 }
