@@ -11,13 +11,13 @@
                 switch (item.Type)
                 {
                     case FilterType._0:
-                        <DatePickerFilter Parent="item" ></DatePickerFilter>
+                        <DatePickerSearchItem Parent="item" ></DatePickerSearchItem>
                         break;
                     case FilterType._1:
-                        <SelectFilter Title="@item.Title" Field="@item.Field"></SelectFilter>
+                        <SelectSearchItem Title="@item.Title" Field="@item.Field"></SelectSearchItem>
                         break;
                     case FilterType._2:
-                        <InputFilter Title="@item.Title" Field="@item.Field"></InputFilter>
+                        <InputSearchItem Title="@item.Title" Field="@item.Field"></InputSearchItem>
                         break;
                 }
             }

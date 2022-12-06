@@ -1,14 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.Build.Framework;
 
 namespace LuckyReport.Server.Models;
 
 public class Filter
 {
     public int Id { get; set; }
-    public string Title { get; set; }
-    public string Field { get; set; }
+    public string? Title { get; set; }
+    public string? Field { get; set; }
     public FilterType Type { get; set; }
     public string? Content { get; set; }
 

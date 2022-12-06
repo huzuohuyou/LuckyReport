@@ -1,6 +1,4 @@
 ﻿@page "/datasourcs"
-@using System.Text.Json
-@using LuckyReport.Helpers
 @inject LuckyReportHelper LuckyReportHelper
 
 <Modal Title="@("Edit")"
@@ -61,7 +59,7 @@
     <Button Type="@ButtonType.Primary" OnClick="@ShowAddFilterModal">
         新建
     </Button>
-    <Table DataSource="listOfData" TItem="Filter" RowClassName="@(_ => "editable-row")" Bordered TableLayout="fixed">
+    <Table DataSource="listOfData" TItem="LuckyReport.Filter" RowClassName="@(_ => "editable-row")" Bordered TableLayout="fixed">
         <ChildContent Context="data">
             <AntDesign.Column TData="string" Title="Title">
                 @if (!editCache[data.Id].edit)
@@ -213,7 +211,7 @@
     #region original form coding
 
     private readonly DataSource _model = new ();
-    private readonly Filter _filter = new();
+    private readonly LuckyReport.Filter _filter = new();
     private  void OnFinishFailed(EditContext editContext)
     {
         Toggle(false);
@@ -281,7 +279,7 @@
      */
 
     private Form<DataSource> _form;
-    private Form<Filter> _filterForm;
+    private Form<LuckyReport.Filter> _filterForm;
     /// <summary>
     /// when form is submited, close the modal
     /// </summary>
@@ -333,8 +331,8 @@
     //    public string Address { get; set; }
     //};
 
-    IDictionary<int, (bool edit, Filter data)> editCache = new Dictionary<int, (bool edit, Filter data)>();
-    IEnumerable<Filter> listOfData ;
+    IDictionary<int, (bool edit, LuckyReport.Filter data)> editCache = new Dictionary<int, (bool edit, LuckyReport.Filter data)>();
+    IEnumerable<LuckyReport.Filter> listOfData;
 
     int i = 0;
     string editId;
